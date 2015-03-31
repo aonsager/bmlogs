@@ -339,7 +339,7 @@ td:last-child {
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 button,
 .button {
-  margin-bottom: 1rem; }
+  /*margin-bottom: 1rem;*/ }
 input,
 textarea,
 select,
@@ -369,7 +369,18 @@ form {
   float: right; }
 .u-pull-left {
   float: left; }
-
+.u-align-right {
+  text-align: right;
+}
+.u-align-left {
+  text-align: left;
+}
+.u-valign:before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
 
 /* Misc
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

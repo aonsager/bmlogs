@@ -5,8 +5,24 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'home#index'
 
-  get 'logs/:user' => 'logs#show'
-  get 'logs/:user/refresh' => 'logs#refresh'
+  # get 'logs/:user' => 'logs#show'
+  # get 'logs/:user/refresh' => 'logs#refresh'
+  # get 'logs/import/:log_id' => 'logs#import', as: :import
+
+  resources :users, only: [:show] do
+    get 'refresh'
+  end
+
+  resources :reports, only: [] do
+    get 'show'
+    get 'import'
+  end
+
+  resources :zones, only: [:index] do
+    collection do 
+      get 'refresh'
+    end
+  end
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

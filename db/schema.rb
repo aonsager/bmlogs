@@ -11,21 +11,52 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150331083335) do
+ActiveRecord::Schema.define(version: 20150331120243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "logs", id: false, force: :cascade do |t|
-    t.string   "id",         null: false
-    t.string   "title"
-    t.integer  "zone"
-    t.datetime "started_at"
-    t.datetime "ended_at"
+  create_table "bosses", force: :cascade do |t|
+    t.string   "name"
+    t.string   "zone_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "logs", ["id"], name: "index_logs_on_id", unique: true, using: :btree
+  create_table "fights", force: :cascade do |t|
+    t.string   "report_id",  null: false
+    t.integer  "fight_id",   null: false
+    t.text     "name"
+    t.integer  "boss_id"
+    t.integer  "size"
+    t.integer  "difficulty"
+    t.boolean  "kill"
+    t.integer  "started_at"
+    t.integer  "ended_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
+
+  create_table "reports", force: :cascade do |t|
+    t.string   "report_id",                  null: false
+    t.string   "user_id"
+    t.string   "title"
+    t.integer  "zone"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.boolean  "imported",   default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "reports", ["report_id"], name: "index_reports_on_report_id", unique: true, using: :btree
+
+  create_table "zones", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
