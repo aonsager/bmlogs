@@ -8,6 +8,7 @@ class AddFights < ActiveRecord::Migration
       t.integer  :size
       t.integer  :difficulty
       t.boolean  :kill
+      t.boolean  :processed, default: false
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps

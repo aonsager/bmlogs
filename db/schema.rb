@@ -24,13 +24,14 @@ ActiveRecord::Schema.define(version: 20150331120243) do
   end
 
   create_table "fights", force: :cascade do |t|
-    t.string   "report_id",  null: false
-    t.integer  "fight_id",   null: false
+    t.string   "report_id",                  null: false
+    t.integer  "fight_id",                   null: false
     t.text     "name"
     t.integer  "boss_id"
     t.integer  "size"
     t.integer  "difficulty"
     t.boolean  "kill"
+    t.boolean  "processed",  default: false
     t.integer  "started_at"
     t.integer  "ended_at"
     t.datetime "created_at"

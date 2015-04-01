@@ -3,9 +3,10 @@ class ReportsController < ApplicationController
 
   def import
     response = HTTParty.get("https://www.warcraftlogs.com:443/v1/report/fights/#{@report_id}?api_key=#{ENV['API_KEY']}")
-    fights = JSON.parse(response.body)['fights']
+    obj = JSON.parse(response.body)
+    fights = obj['fights']
+    players = obj['friendlies']
     fights.each do |fight|
-      puts fight
       next if fight['boss'].to_i == 0
       if !Fight.exists?(report_id: @report_id, fight_id: fight['id'])
         Fight.create(
@@ -20,10 +21,11 @@ class ReportsController < ApplicationController
           ended_at: fight['end_time'],
         )
       end
-      Report.where(report_id: @report_id).first.update_attribute(:imported, true)
     end
 
-    redirect_to :back
+    Report.where(report_id: @report_id).first.update_attribute(:imported, true)
+
+    redirect_to user_path(@user_id)
   end
 
   def show
@@ -34,6 +36,7 @@ class ReportsController < ApplicationController
   private
 
   def get_report
-    @report_id = params[:report_id]
+    @report_id = params[:report_id] || params[:id]
+    @user_id = params[:user_id]
   end
 end

@@ -8,6 +8,7 @@
         <th>Difficulty</th>
         <th>Kill?</th>
         <th>Fight length</th>
+        <th></th>
       </tr>
     </thead>
     <% @fights.each do |fight| %>
@@ -16,6 +17,7 @@
         <td><%= "#{DifficultyType.label(fight.difficulty)} #{fight.size} man" %></td>
         <td><%= fight.kill? ? "Kill" : "Wipe" %></td>
         <td><%= Time.at(fight.ended_at/1000 - fight.started_at/1000).strftime("%M:%S") %></td>
+        <td><%= fight.processed? ? link_to('View', user_report_fight_path(@user_id, @report.report_id, fight.fight_id), class: 'button') : link_to('Process Fight', user_report_fight_process_path(@user_id, @report.report_id, fight.fight_id), class: 'button button-primary') %></td>
       </tr>
     <% end %>
   </table>

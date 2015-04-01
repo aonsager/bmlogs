@@ -17,3 +17,7 @@
 .row {
   margin-top: 10px;
 }
+
+a.button-primary[disabled] { 
+  pointer-events: none;
+}
