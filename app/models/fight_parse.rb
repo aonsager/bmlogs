@@ -21,7 +21,7 @@ class FightParse < ActiveRecord::Base
     @current_eb = EbParse.new(fight_parse_id: self.id, started_at: started_at)
     @dodge = {}
     # {sources: {}, started_at: started_at, ended_at: started_at}
-    # @total_eb = 0
+    @total_eb = 0
 
     @damage_by_source = {}
   end
@@ -81,17 +81,11 @@ class FightParse < ActiveRecord::Base
     @current_eb.ended_at = timestamp
     if @ebing # if fight started with elusive brew up, ignore for averages
       @current_eb.save 
-      puts @dodge
-      puts @damage_by_source
       @dodge.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
           next unless @damage_by_source[source_id].has_key?(ability_id)
-          puts source[:name]
-          puts ability[:name]
-          puts ability[:dodged]
-          puts source_id, ability_id
-          puts @damage_by_source[source_id][ability_id][:avg]
-          EbSource.create(eb_parse_id: @current_eb.id, source_id: source_id, source_name: source[:name], ability_id: ability_id, ability_name: ability[:name], dodged_count: ability[:dodged], average_dmg: @damage_by_source[source_id][:abilities][ability_id][:avg])
+
+          EbSource.create(eb_parse_id: @current_eb.id, source_id: source_id, source_name: source[:name], ability_id: ability_id, ability_name: ability[:name], dodged_count: ability[:dodged], average_dmg: @damage_by_source[source_id][ability_id][:avg])
         end
       end
     end
