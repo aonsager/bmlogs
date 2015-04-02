@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150331120243) do
+ActiveRecord::Schema.define(version: 20150402092931) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,6 +22,51 @@ ActiveRecord::Schema.define(version: 20150331120243) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "eb_parses", force: :cascade do |t|
+    t.integer  "fight_parse_id"
+    t.integer  "damage_avoided", default: 0
+    t.integer  "started_at"
+    t.integer  "ended_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "eb_sources", force: :cascade do |t|
+    t.integer "eb_parse_id"
+    t.integer "source_id"
+    t.text    "source_name"
+    t.integer "ability_id"
+    t.text    "ability_name"
+    t.integer "average_dmg",  default: 0
+    t.integer "dodged_count", default: 0
+  end
+
+  create_table "fight_parses", force: :cascade do |t|
+    t.integer  "fight_id",                        null: false
+    t.text     "user_id",                         null: false
+    t.integer  "player_id",                       null: false
+    t.integer  "boss_id"
+    t.integer  "kegsmash",            default: 0
+    t.integer  "tigerpalm",           default: 0
+    t.integer  "shuffle",             default: 0
+    t.integer  "capped_time",         default: 0
+    t.integer  "damage_to_stagger",   default: 0
+    t.integer  "damage_from_stagger", default: 0
+    t.integer  "player_damage_done",  default: 0
+    t.integer  "pet_damage_done",     default: 0
+    t.integer  "damage_taken",        default: 0
+    t.integer  "self_healing",        default: 0
+    t.integer  "self_absorbing",      default: 0
+    t.integer  "external_healing",    default: 0
+    t.integer  "external_absorbing",  default: 0
+    t.integer  "started_at"
+    t.integer  "ended_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "fight_parses", ["fight_id"], name: "index_fight_parses_on_fight_id", unique: true, using: :btree
 
   create_table "fights", force: :cascade do |t|
     t.string   "report_id",                  null: false
@@ -39,6 +84,16 @@ ActiveRecord::Schema.define(version: 20150331120243) do
   end
 
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
+
+  create_table "guard_parses", force: :cascade do |t|
+    t.integer  "fight_parse_id"
+    t.integer  "absorbed",       default: 0
+    t.integer  "healed",         default: 0
+    t.integer  "started_at"
+    t.integer  "ended_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "reports", force: :cascade do |t|
     t.string   "report_id",                  null: false
