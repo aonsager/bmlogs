@@ -375,6 +375,9 @@ form {
 .u-align-left {
   text-align: left;
 }
+.u-align-center {
+  text-align: center;
+}
 .u-valign:before {
     content: "";
     display: inline-block;

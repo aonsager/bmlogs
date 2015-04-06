@@ -21,3 +21,28 @@
 a.button-primary[disabled] { 
   pointer-events: none;
 }
+
+.bar-table {
+  table-layout: fixed;
+}
+
+.bar-table th {
+  /*text-align: center;*/
+}
+
+.bar-table td {
+  padding: 5px 10px;
+}
+
+.bar-table .bar {
+  background: rgb(30, 180, 123);
+ /* background: -moz-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -webkit-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -o-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: -ms-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
+  background: linear-gradient(0deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);*/
+  border-radius: 3px;
+  box-sizing: border-box;
+  color: white;
+  padding: 0px 10px;
+}
