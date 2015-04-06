@@ -1,0 +1,31 @@
+<div class="container">
+  <h5><small><%= @report.title %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@fight.name} (#{@fp.fight_time / 60}:#{@fp.fight_time % 60})" %></h5>
+
+  <%= link_to('Key Metrics', '?tab=basic', class: 'button') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'button button-primary') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button') %>
+  <br /><br />
+  <table class="u-full-width">
+    <thead>
+      <tr>
+        <th>Kegsmash casts</th>
+        <th>Tigerpalm casts</th>
+        <th>Shuffle Uptime</th>
+        <th>Time spent energy-capped</th>
+        <th>Stagger purified</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th><%= @fp.kegsmash %> / <%= @fp.fight_time / 8 %> (<%= 800 * @fp.kegsmash / @fp.fight_time %>%)</th>
+        <th><%= @fp.tigerpalm %></th>
+        <th><%= @fp.shuffle %>s / <%= @fp.fight_time %>s (<%= 100 * @fp.shuffle / @fp.fight_time %>%)</th>
+        <th><%= @fp.capped_time %>s</th>
+        <th><%= 100 * (@fp.damage_to_stagger - @fp.damage_from_stagger) / @fp.damage_to_stagger %>%</th>
+        <th></th>
+      </tr>
+    </tbody>
+
+  </table>
+</div>

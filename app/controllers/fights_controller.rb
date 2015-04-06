@@ -53,6 +53,16 @@ class FightsController < ApplicationController
   def show
     @fight = Fight.where(report_id: @report_id, fight_id: @fight_id).first
     @report = Report.where(report_id: @report_id).first
+    @fp = FightParse.where(fight_id: @fight.id).first
+
+    case params[:tab]
+    when 'resources'
+      render template: 'fights/show_resources'
+    when 'cooldowns'
+      render template: 'fights/show_cooldowns'
+    else
+      render template: 'fights/show_basic'
+    end
   end
 
   private

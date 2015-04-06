@@ -1,0 +1,27 @@
+<div class="container">
+  <h5><small><%= @report.title %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@fight.name} (#{@fp.fight_time / 60}:#{@fp.fight_time % 60})" %></h5>
+
+  <%= link_to('Key Metrics', '?tab=basic', class: 'button button-primary') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'button') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button') %>
+  <br /><br />
+  <table class="u-full-width">
+    <thead>
+      <tr>
+        <th>Damage (DPS)</th>
+        <th>Damage taken (DTPS)</th>
+        <th>Self-healing (HPS)</th>
+        <th>External healing (HPS)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th><%= (@fp.player_damage_done + @fp.pet_damage_done) / @fp.fight_time %></th>
+        <th><%= @fp.damage_taken / @fp.fight_time %></th>
+        <th><%= (@fp.self_healing + @fp.self_absorbing) / @fp.fight_time %></th>
+        <th><%= (@fp.external_healing + @fp.external_absorbing) / @fp.fight_time %></th>
+      </tr>
+    </tbody>
+
+  </table>
+</div>
