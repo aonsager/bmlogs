@@ -6,48 +6,125 @@ class FightsController < ApplicationController
     obj = JSON.parse(response.body)
     composition = obj['composition']
     events = obj['events']
-    @parsed_events = {}
+    bm_ids = {3 => 159857230}
+    fight_parses = {}
+    owners_by_pet_id = {}
+    user_id = Report.where(report_id: @fight.report_id).first.user_id
 
     composition.each do |player|
-      @parsed_events[player['id']] = [] if player['specs'][0]['spec'] == "Brewmaster"
+      bm_ids[player['id']] = player['guid'] if player['specs'][0]['spec'] == "Brewmaster"
     end
 
-    events.each do |event|
-      next unless @parsed_events.has_key? event['targetID']
-      @parsed_events[event['targetID']] << event
+    bm_ids.each do |bm_id, guid|
+      FightParse.where(fight_id: @fight.id, user_id: user_id, player_id: bm_id).destroy_all
+      fight_parses[bm_id] = FightParse.create(fight_id: @fight.id, user_id: user_id, player_id: bm_id)
+      fight_parses[bm_id].started_at = @fight.started_at
+      fight_parses[bm_id].ended_at = @fight.ended_at
     end
 
-    # fights.each do |fight|
-    #   next if fight['boss'].to_i == 0
-    #   if !Fight.exists?(report_id: @report_id, fight_id: fight['id'])
-    #     Fight.create(
-    #       report_id: @report_id,
-    #       fight_id: fight['id'],
-    #       name: fight['name'],
-    #       boss_id: fight['boss'],
-    #       size: fight['size'],
-    #       difficulty: fight['difficulty'],
-    #       kill: fight['kill'],
-    #       started_at: fight['start_time'],
-    #       ended_at: fight['end_time'],
-    #     )
-    #   end
-    # end
-    # players.each do |player|
-    #   if !Player.exists?(report_id: @report_id, player_id: player['id'])
-    #     Player.create(
-    #       report_id: @report_id,
-    #       player_id: player['id'],
-    #       guid: player['guid'],
-    #       name: player['name'],
-    #       player_class: player['type']
-    #     )
-    #   end
-    # end
+    loop do
+      cursor = @fight.started_at
+      events.each do |event|
+        if bm_ids.has_key?(event['sourceID']) # the player did something
+          fp = fight_parses[event['sourceID']]
+          case event['type']
+          when 'cast'
+            fp.cast_kegsmash if event['ability']['guid'] == 121253
+            fp.cast_tigerpalm if event['ability']['guid'] == 100787
+            # puts "#{event['resourceActor']}, #{event['resourceAmount']}, #{event['maxResourceAmount']}, #{event['resourceType']}"
+            if event['resourceType'] == 3 # check if energy capped
+              if event['resourceAmount'] == event['maxResourceAmount']
+                fp.cap(true, event['timestamp']) unless (fp.capped || fp.serenity)
+              elsif fp.capped
+                fp.cap(false, event['timestamp'])
+              end
+            end
+          when 'applybuff'
+            case event['ability']['guid'] 
+            when 115295 # gain guard
+              fp.gain_guard(event['timestamp'])
+            when 115307 # gain shuffle
+              fp.gain_shuffle(event['timestamp'])
+            when 115308 # gain elusive brew
+              fp.gain_eb(event['timestamp'])
+            when 152173 # gain serenity
+              fp.serenity = true
+            end
+          when 'removebuff'
+            case event['ability']['guid'] 
+            when 115295 # drop guard
+              fp.drop_guard(event['timestamp'])
+            when 115307 # drop shuffle
+              fp.drop_shuffle(event['timestamp'])
+            when 115308 # drop elusive brew
+              fp.drop_eb(event['timestamp'])
+            when 152173 # drop serenity
+              fp.serenity = false
+            end
+          when 'damage'
+            fp.deal_damage_player(event['amount']) if !event['targetIsFriendly']
+            fp.stagger_tick(event['amount'] + event['absorbed']) if event['targetID'] == event['sourceID']
+          when 'summon'
+            owners_by_pet_id[event['targetID']] ||= event['sourceID']
+          end
+        end
+        if owners_by_pet_id.has_key?(event['sourceID']) # the player's pet did something
+          case event['type']
+          when 'damage'
+            fp = fight_parses[owners_by_pet_id[event['sourceID']]]
+            fp.deal_damage_pet(event['amount']) if !event['targetIsFriendly']
+          end
+        end
+        if bm_ids.has_key?(event['targetID']) # something was done to the player
+          fp = fight_parses[event['targetID']]
+          case event['type']
+          when 'absorbed'
+            if event['targetID'] == event['sourceID'] # self-absorb
+              if event['ability']['guid'] == 115069 # stagger
+                fp.stagger(event['amount'])
+              elsif event['ability']['guid'] == 115295 # guard
+                fp.guard(event['amount'])
+              else # just in case
+                fp.self_absorb(event['amount'])
+              end
+            else # external absorb received
+              fp.external_absorb(event['amount'])
+            end
+          when 'heal'
+            if event['targetID'] == event['sourceID'] # self-healing
+              fp.self_heal(event['amount'])
+            else # external healing received
+              fp.external_heal(event['amount'])
+            end
+          when 'damage'
+            fp.take_damage(event['amount'])
+            unless [7,8].include? event['hitType'] # record damage from ability
+              fp.record_damage(event['sourceID'], event['ability']['guid'], event['ability']['name'], event['amount'], event['absorbed'])
+            end
+            if fp.ebing && event['hitType'] == 7 # dodge with elusive brew
+              fp.dodge(event['sourceID'], event['ability']['guid'], event['ability']['name'])
+            end
+          end
+        end
+        cursor = event['timestamp'] + 1
+      end
+      puts "cursor: #{cursor}"
+      if cursor >=  @fight.ended_at
+        break
+      else 
+        response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{@report_id}?start=#{cursor}&api_key=#{ENV['API_KEY']}")
+        obj = JSON.parse(response.body)
+        events = obj['events']
+      end
+    end
 
-    # Report.where(report_id: @report_id).first.update_attribute(:imported, true)
+    bm_ids.each do |bm_id, guid|
+      fight_parses[bm_id].clean
+      fight_parses[bm_id].save
+      fight_parses[bm_id].print
+    end
 
-    # redirect_to user_report_fight_path(@user_id, @report_id, @fight_id)
+    redirect_to user_report_fight_path(@user_id, @report_id, @fight_id)
   end
 
   def show

@@ -34,23 +34,22 @@ class AddFightParses < ActiveRecord::Migration
 
     create_table :eb_parses do |t|
       t.integer  :fight_parse_id, null: false
-      t.integer  :damage_avoided, default: 0
+      t.text     :dodged_hash, default: {}.to_yaml
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps
     end
 
     create_table :eb_sources do |t|
-      t.integer  :eb_parse_id, null: false
+      t.integer  :fight_parse_id, null: false
       t.integer  :source_id, null: false
       t.text     :source_name
       t.integer  :ability_id, null: false
       t.text     :ability_name
       t.integer  :average_dmg, default: 0
-      t.integer  :dodged_count, default: 0
     end
 
     add_index :fight_parses, :fight_id, :unique => true
-    add_index :fight_parses, [:eb_parse_id, :source_id, :ability_id], :unique => true
+    add_index :eb_sources, [:fight_parse_id, :source_id, :ability_id], :unique => true
   end
 end

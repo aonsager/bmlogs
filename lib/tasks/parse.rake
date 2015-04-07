@@ -18,7 +18,8 @@ namespace :log do
     owners_by_pet_id = {}
 
     bm_ids.each do |bm_id, guid|
-      fight_parses[bm_id] = FightParse.where(fight_id: 1, user_id: 'epwna', player_id: 1).first_or_create
+      FightParse.where(fight_id: 1, user_id: 'epwna', player_id: 1).destroy_all
+      fight_parses[bm_id] = FightParse.create(fight_id: 1, user_id: 'epwna', player_id: 1)
       fight_parses[bm_id].started_at = started_at
       fight_parses[bm_id].ended_at = ended_at
     end

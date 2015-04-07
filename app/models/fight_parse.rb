@@ -1,11 +1,27 @@
 class FightParse < ActiveRecord::Base
   belongs_to :fight
-  has_many :guard_parse, dependent: :destroy
-  has_many :eb_parse, dependent: :destroy
-  after_initialize :init_vars
+  has_many :guard_parses, dependent: :destroy
+  has_many :eb_parses, dependent: :destroy
+  has_many :eb_sources, dependent: :destroy
+  after_create :init_vars
   attr_accessor :ebing, :capped, :serenity
 
   def init_vars
+    self.kegsmash = 0
+    self.tigerpalm = 0
+    self.shuffle = 0
+    self.capped_time = 0
+    self.damage_to_stagger = 0
+    self.damage_from_stagger = 0
+    self.player_damage_done = 0
+    self.pet_damage_done = 0
+    self.damage_taken = 0
+    self.self_healing = 0
+    self.self_absorbing = 0
+    self.external_healing = 0
+    self.external_absorbing = 0
+    self.save
+
     @capped = false
     @capped_started_at = 0
 
@@ -13,22 +29,42 @@ class FightParse < ActiveRecord::Base
     @shuffling = false
 
     @guarding = false
-    GuardParse.where(fight_parse_id: self.id).destroy_all
+    self.guard_parses.destroy
     @current_guard = GuardParse.new(fight_parse_id: self.id, started_at: started_at)
 
     @ebing = false
-    EbParse.where(fight_parse_id: self.id).destroy_all
+    self.eb_parses.destroy
     @current_eb = EbParse.new(fight_parse_id: self.id, started_at: started_at)
-    @dodge = {}
+    # @dodge = {}
     # {sources: {}, started_at: started_at, ended_at: started_at}
     @total_eb = 0
 
     @damage_by_source = {}
   end
 
+  # getters
+
   def fight_time
     return (self.ended_at - self.started_at) / 1000
   end
+
+  def dps
+    return (self.player_damage_done + self.pet_damage_done) / self.fight_time
+  end
+
+  def dtps
+    return self.damage_taken / self.fight_time
+  end
+
+  def shps
+    return (self.self_healing + self.self_absorbing) / self.fight_time
+  end
+
+  def ehps
+    return (self.external_healing + self.external_absorbing) / self.fight_time
+  end
+
+  # setters
 
   def cast_kegsmash
     self.kegsmash += 1 
@@ -79,16 +115,7 @@ class FightParse < ActiveRecord::Base
 
   def drop_eb(timestamp)
     @current_eb.ended_at = timestamp
-    if @ebing # if fight started with elusive brew up, ignore for averages
-      @current_eb.save 
-      @dodge.each do |source_id, source|
-        source[:abilities].each do |ability_id, ability|
-          next unless @damage_by_source[source_id].has_key?(ability_id)
-
-          EbSource.create(eb_parse_id: @current_eb.id, source_id: source_id, source_name: source[:name], ability_id: ability_id, ability_name: ability[:name], dodged_count: ability[:dodged], average_dmg: @damage_by_source[source_id][ability_id][:avg])
-        end
-      end
-    end
+    @current_eb.save if @ebing # if fight started with elusive brew up, ignore for averages
     # @ebs << @current_eb if @ebing # if fight started with elusive brew up, ignore for averages
     @ebing = false
   end
@@ -130,20 +157,25 @@ class FightParse < ActiveRecord::Base
     self.external_healing += amount
   end
 
-  def record_damage(source, guid, name, amount, absorbed)
-    @damage_by_source[source] ||= {}
-    ability = @damage_by_source[source][guid] ||= {name: name, avg: 0.0, count: 0}
+  def record_damage(source_id, guid, name, amount, absorbed)
+    source_id ||= 0
+    @damage_by_source[source_id] ||= {}
+    ability = @damage_by_source[source_id][guid] ||= {name: name, avg: 0.0, count: 0}
     ability[:avg] = ability[:avg] * ability[:count] / (ability[:count] + 1) + (amount + absorbed) * 1 / (ability[:count] + 1)
     ability[:count] += 1
   end
 
   def dodge(source_id, ability_id, ability_name)
+    source ||= 0
     # source = EbSource.where(eb_parse_id: @current_eb.id, source_id: source_id, ability_id: ability_id).first_or_initialize
     # source.ability_name = ability_name
     # source.dodged += 1
-    @dodge[source_id] ||= {name: 'Source Name', abilities: {}}
-    @dodge[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0}
-    @dodge[source_id][:abilities][ability_id][:dodged] += 1
+    @current_eb.dodged_hash[source_id] ||= {name: 'Source Name', abilities: {}}
+    @current_eb.dodged_hash[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0}
+    @current_eb.dodged_hash[source_id][:abilities][ability_id][:dodged] += 1
+    # @dodge[source_id] ||= {name: 'Source Name', abilities: {}}
+    # @dodge[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0}
+    # @dodge[source_id][:abilities][ability_id][:dodged] += 1
   end
 
   def clean
@@ -151,25 +183,42 @@ class FightParse < ActiveRecord::Base
     self.shuffle += self.ended_at if @shuffling
 
     # calculate total damage healed/absorbed with guard
-    GuardParse.where(fight_parse_id: self.id).each do |g|
+    self.guard_parses.each do |g|
       guarded = g.absorbed + (g.healed/1.3).to_i
-      puts "Guard #{g.started_at/1000}-#{g.ended_at/1000}: Absorbed #{g.absorbed}, Healed #{g.healed} (#{guarded})"
+      # puts "Guard #{g.started_at/1000}-#{g.ended_at/1000}: Absorbed #{g.absorbed}, Healed #{g.healed} (#{guarded})"
+    end
+
+    # save average damage by ability
+    puts @damage_by_source
+    @damage_by_source.each do |source_id, abilities|
+      abilities.each do |ability_id, ability|
+        EbSource.create(fight_parse_id: self.id, source_id: source_id, ability_id: ability_id, ability_name: ability[:name], average_dmg: ability[:avg])
+      end
     end
 
     # calculate total damage avoided with Eb
-    
-
-    EbParse.where(fight_parse_id: self.id).each do |eb|
+    self.eb_parses.each do |eb|
       puts "Elusive Brew #{eb.started_at/1000}-#{eb.ended_at/1000}:"
       eb_dmg = 0
-      EbSource.where(eb_parse_id: eb.id).each do |source|
-        eb_dmg += source.avoided_dmg
-        puts "#{source.ability_name}: dodged #{source.dodged_count} (#{source.avoided_dmg})"
+      eb.dodged_hash.each do |source_id, source|
+        source[:abilities].each do |ability_id, ability|
+          avoided_dmg = ability[:dodged] * self.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg
+          eb_dmg += avoided_dmg
+        end
       end
-      puts "Total Avoided Damage: #{eb_dmg}"
-      @total_eb += eb_dmg
-      puts ""
+
+
+      # EbSource.where(eb_parse_id: eb.id).each do |source|
+      #   eb_dmg += source.avoided_dmg
+      #   puts "#{source.ability_name}: dodged #{source.dodged_count} (#{source.avoided_dmg})"
+      # end
+      # puts "Total Avoided Damage: #{eb_dmg}"
+      # @total_eb += eb_dmg
+      # puts ""
     end
+
+    self.fight.processed = true
+    self.fight.save
   end
 
   def print

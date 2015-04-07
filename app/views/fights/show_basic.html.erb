@@ -1,3 +1,11 @@
+<% max_bar = [
+    @fp.dps,
+    @fp.dtps,
+    @fp.shps,
+    @fp.ehps
+  ].max
+%>
+
 <div class="container">
   <h5><small><%= @report.title %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@fight.name} (#{@fp.fight_time / 60}:#{@fp.fight_time % 60})" %></h5>
 
@@ -10,8 +18,8 @@
     <div class="row">
       <div class="one column">2/20</div>
       <div class="five columns">
-        <div class="bar light" style="width: 100%">
-          <div class="bar" style="width: <%= 100 * @fp.player_damage_done / (@fp.player_damage_done + @fp.pet_damage_done) %>%"><%= (@fp.player_damage_done + @fp.pet_damage_done) / @fp.fight_time %></div>
+        <div class="bar light" style="width: <%= 100 * @fp.dps / max_bar %>%">
+          <div class="bar" style="width: <%= 100 * @fp.player_damage_done / (@fp.player_damage_done + @fp.pet_damage_done) %>%"><%= @fp.dps %></div>
         </div>
       </div>
       <div class="six columns"><%= @fp.player_damage_done / 1000 %>k total damage (<%= @fp.pet_damage_done / 1000 %>k pet)</div>
@@ -23,11 +31,11 @@
     <div class="row">
       <div class="one column">2/20</div>
       <div class="five columns">
-        <div class="bar" style="width: 100%">
-          <%= @fp.damage_taken / @fp.fight_time %>
+        <div class="bar" style="width: <%= 100 * @fp.dtps / max_bar %>%">
+          <%= @fp.dtps %>
         </div>
       </div>
-      <div class="six columns"><%= @fp.damage_taken / 1000 %>k damage taken</div>
+      <div class="six columns"><%= @fp.damage_taken / 1000 %>k total damage taken</div>
     </div>
   </section>
 
@@ -36,9 +44,9 @@
     <div class="row">
       <div class="one column">2/20</div>
       <div class="five columns">
-        <div class="bar light" style="width: 100%">
+        <div class="bar light" style="width: <%= 100 * @fp.shps / max_bar %>%">
           <div class="bar" style="width: <%= 100 * @fp.self_healing / (@fp.self_healing + @fp.self_absorbing) %>%">
-            <%= (@fp.self_healing + @fp.self_absorbing) / @fp.fight_time %>
+            <%= @fp.shps %>
           </div>
         </div>
       </div>
@@ -51,9 +59,9 @@
     <div class="row">
       <div class="one column">2/20</div>
       <div class="five columns">
-        <div class="bar light" style="width: 100%">
+        <div class="bar light" style="width: <%= 100 * @fp.ehps / max_bar %>%">
           <div class="bar" style="width: <%= 100 * @fp.external_healing / (@fp.external_healing + @fp.external_absorbing) %>%">
-            <%= (@fp.external_healing + @fp.external_absorbing) / @fp.fight_time %>
+            <%= @fp.ehps %>
           </div>
         </div>
       </div>

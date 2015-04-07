@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150402092931) do
+ActiveRecord::Schema.define(version: 20150407174704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,8 +24,8 @@ ActiveRecord::Schema.define(version: 20150402092931) do
   end
 
   create_table "eb_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id"
-    t.integer  "damage_avoided", default: 0
+    t.integer  "fight_parse_id",                      null: false
+    t.text     "dodged_hash",    default: "--- {}\n"
     t.integer  "started_at"
     t.integer  "ended_at"
     t.datetime "created_at"
@@ -33,14 +33,15 @@ ActiveRecord::Schema.define(version: 20150402092931) do
   end
 
   create_table "eb_sources", force: :cascade do |t|
-    t.integer "eb_parse_id"
-    t.integer "source_id"
+    t.integer "fight_parse_id",             null: false
+    t.integer "source_id",                  null: false
     t.text    "source_name"
-    t.integer "ability_id"
+    t.integer "ability_id",                 null: false
     t.text    "ability_name"
-    t.integer "average_dmg",  default: 0
-    t.integer "dodged_count", default: 0
+    t.integer "average_dmg",    default: 0
   end
+
+  add_index "eb_sources", ["fight_parse_id", "source_id", "ability_id"], name: "index_eb_sources_on_fight_parse_id_and_source_id_and_ability_id", unique: true, using: :btree
 
   create_table "fight_parses", force: :cascade do |t|
     t.integer  "fight_id",                        null: false
@@ -66,7 +67,7 @@ ActiveRecord::Schema.define(version: 20150402092931) do
     t.datetime "updated_at"
   end
 
-  add_index "fight_parses", ["fight_id"], name: "index_fight_parses_on_fight_id", unique: true, using: :btree
+  add_index "fight_parses", ["fight_id", "player_id"], name: "index_fight_parses_on_fight_id_and_player_id", unique: true, using: :btree
 
   create_table "fights", force: :cascade do |t|
     t.string   "report_id",                  null: false
@@ -86,7 +87,7 @@ ActiveRecord::Schema.define(version: 20150402092931) do
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
 
   create_table "guard_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id"
+    t.integer  "fight_parse_id",             null: false
     t.integer  "absorbed",       default: 0
     t.integer  "healed",         default: 0
     t.integer  "started_at"

@@ -1,4 +1,5 @@
 class EbParse < ActiveRecord::Base
   belongs_to :fight_parse
-  has_many :eb_source, dependent: :destroy
+  serialize :dodged_hash, Hash
+
 end
