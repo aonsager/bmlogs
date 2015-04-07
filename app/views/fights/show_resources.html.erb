@@ -5,53 +5,86 @@
   <%= link_to('Resource Management', '?tab=resources', class: 'button button-primary') %>
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button') %>
   <br /><br />
-  <table class="u-full-width bar-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Kegsmash casts</th>
-        <th>Tigerpalm casts</th>
-        <th>Shuffle Uptime</th>
-        <th>Energy-capped</th>
-        <th>Stagger purified</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><%= @report.started_at.strftime("%D") %></td>
-        <td><div class="bar"><%= @fp.kegsmash %> / <%= @fp.fight_time / 8 %> (<%= 800 * @fp.kegsmash / @fp.fight_time %>%)</div></td>
-        <td><div class="bar" style="width:80%"><%= @fp.tigerpalm %></div></td>
-        <td><div class="bar"><%= @fp.shuffle %>s / <%= @fp.fight_time %>s (<%= 100 * @fp.shuffle / @fp.fight_time %>%)</div></td>
-        <td><div class="bar"><%= @fp.capped_time %>s</div></td>
-        <td><div class="bar"><%= 100 * (@fp.damage_to_stagger - @fp.damage_from_stagger) / @fp.damage_to_stagger %>%</div></td>
-      </tr>
-      <tr>
-        <td><div class="bar"></div></td>
-        <td><div class="bar"></div></td>
-        <td><div class="bar"></div></td>
-        <td><div class="bar"></div></td>
-        <td><div class="bar"></div></td>
-        <td><div class="bar"></div></td>
-      </tr>
-    </tbody>
 
-  </table>
-  <!-- <div class="bar-table">
-    <div class="row u-align-center">
-      <div class="one column">Date</div>
-      <div class="two columns">Kegsmash casts</div>
-      <div class="two columns">Tigerpalm casts</div>
-      <div class="two columns">Shuffle uptime</div>
-      <div class="two columns">Energy-capped time</div>
-      <div class="two columns">Stagger purified</div>
+  <section>
+    <h4>Kegsmash Efficiency</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar" style="width: 75%"><%= @fp.kegsmash %></div>
+      </div>
+      <div class="three columns"><%= @fp.kegsmash %> / <%= @fp.fight_time / 8 %> (<%= 800 * @fp.kegsmash / @fp.fight_time %>%)</div>
     </div>
     <div class="row">
-      <div class="one column">Date</div>
-      <div class="two columns"><%= @fp.kegsmash %> / <%= @fp.fight_time / 8 %> (<%= 800 * @fp.kegsmash / @fp.fight_time %>%)</div>
-      <div class="two columns"><%= @fp.tigerpalm %></div>
-      <div class="two columns"><%= @fp.shuffle %>s / <%= @fp.fight_time %>s (<%= 100 * @fp.shuffle / @fp.fight_time %>%)</div>
-      <div class="two columns"><%= @fp.capped_time %>s</div>
-      <div class="two columns"><%= 100 * (@fp.damage_to_stagger - @fp.damage_from_stagger) / @fp.damage_to_stagger %>%</div>
+      <div class="one column">3/15</div>
+      <div class="five columns">
+        <div class="bar" style="width: 89%">31</div>
+      </div>
+      <div class="three columns">31 / 35 (89%)</div>
     </div>
-  </div> -->
+  </section>
+
+  <section>
+    <h4>Shuffle Uptime</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar" style="width: <%= 100 * @fp.shuffle / @fp.fight_time %>%">
+          <%= 100 * @fp.shuffle / @fp.fight_time %>%
+        </div>
+      </div>
+      <div class="three columns"><%= @fp.shuffle %>s / <%= @fp.fight_time %>s</div>
+    </div>
+    <div class="row">
+      <div class="one column">3/15</div>
+      <div class="five columns">
+        <div class="bar" style="width: 92%">92%</div>
+      </div>
+      <div class="three columns">31 / 35 (92%)</div>
+    </div>
+  </section>
+
+  <section>
+    <h4>Time Energy-Capped</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar" style="width: 80%">
+          <%= @fp.capped_time %>s
+        </div>
+      </div>
+      <div class="three columns"><%= @fp.capped_time %>s</div>
+    </div>
+    <div class="row">
+      <div class="one column">3/15</div>
+      <div class="five columns">
+        <div class="bar" style="width: 50%">20s</div>
+      </div>
+      <div class="three columns">20s</div>
+    </div>
+  </section>
+
+  <section>
+    <h4>Stagger Purified</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar light" style="width: 90%">
+          <div class="bar" style="width: <%= 100 * (@fp.damage_to_stagger - @fp.damage_from_stagger) / @fp.damage_to_stagger %>%">
+            <%= 100 * (@fp.damage_to_stagger - @fp.damage_from_stagger) / @fp.damage_to_stagger %>%
+          </div>
+        </div>
+      </div>
+      <div class="three columns"><%= (@fp.damage_to_stagger - @fp.damage_from_stagger) / 1000 %>k / <%= @fp.damage_to_stagger / 1000 %>k</div>
+    </div>
+    <div class="row">
+      <div class="one column">3/15</div>
+      <div class="five columns">
+        <div class="bar light" style="width: 80%">
+          <div class="bar" style="width: 90%">90%</div>
+        </div>
+      </div>
+      <div class="three columns">20s</div>
+    </div>
+  </section>
 </div>

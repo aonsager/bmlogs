@@ -5,23 +5,59 @@
   <%= link_to('Resource Management', '?tab=resources', class: 'button') %>
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button') %>
   <br /><br />
-  <table class="u-full-width">
-    <thead>
-      <tr>
-        <th>Damage (DPS)</th>
-        <th>Damage taken (DTPS)</th>
-        <th>Self-healing (HPS)</th>
-        <th>External healing (HPS)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th><%= (@fp.player_damage_done + @fp.pet_damage_done) / @fp.fight_time %></th>
-        <th><%= @fp.damage_taken / @fp.fight_time %></th>
-        <th><%= (@fp.self_healing + @fp.self_absorbing) / @fp.fight_time %></th>
-        <th><%= (@fp.external_healing + @fp.external_absorbing) / @fp.fight_time %></th>
-      </tr>
-    </tbody>
+  <section>
+    <h4>Damage per Second</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar light" style="width: 100%">
+          <div class="bar" style="width: <%= 100 * @fp.player_damage_done / (@fp.player_damage_done + @fp.pet_damage_done) %>%"><%= (@fp.player_damage_done + @fp.pet_damage_done) / @fp.fight_time %></div>
+        </div>
+      </div>
+      <div class="six columns"><%= @fp.player_damage_done / 1000 %>k total damage (<%= @fp.pet_damage_done / 1000 %>k pet)</div>
+    </div>
+  </section>
 
-  </table>
+  <section>
+    <h4>Damage Taken per Second</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar" style="width: 100%">
+          <%= @fp.damage_taken / @fp.fight_time %>
+        </div>
+      </div>
+      <div class="six columns"><%= @fp.damage_taken / 1000 %>k damage taken</div>
+    </div>
+  </section>
+
+  <section>
+    <h4>Self Healing per Second</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar light" style="width: 100%">
+          <div class="bar" style="width: <%= 100 * @fp.self_healing / (@fp.self_healing + @fp.self_absorbing) %>%">
+            <%= (@fp.self_healing + @fp.self_absorbing) / @fp.fight_time %>
+          </div>
+        </div>
+      </div>
+      <div class="six columns"><%= @fp.self_healing / 1000 %>k healed, <%= @fp.self_absorbing / 1000 %>k absorbed</div>
+    </div>
+  </section>
+
+  <section>
+    <h4>External Healing per Second</h4>
+    <div class="row">
+      <div class="one column">2/20</div>
+      <div class="five columns">
+        <div class="bar light" style="width: 100%">
+          <div class="bar" style="width: <%= 100 * @fp.external_healing / (@fp.external_healing + @fp.external_absorbing) %>%">
+            <%= (@fp.external_healing + @fp.external_absorbing) / @fp.fight_time %>
+          </div>
+        </div>
+      </div>
+      <div class="six columns"><%= @fp.external_healing / 1000 %>k healed, <%= @fp.external_absorbing / 1000 %>k absorbed</div>
+    </div>
+  </section>
 </div>

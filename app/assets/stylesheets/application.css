@@ -34,7 +34,7 @@ a.button-primary[disabled] {
   padding: 5px 10px;
 }
 
-.bar-table .bar {
+.bar {
   background: rgb(30, 180, 123);
  /* background: -moz-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
   background: -webkit-linear-gradient(270deg, rgb(41, 206, 57) 22%, rgb(39, 192, 55) 80%);
@@ -45,4 +45,24 @@ a.button-primary[disabled] {
   box-sizing: border-box;
   color: white;
   padding: 0px 10px;
+  overflow: hidden;
+}
+
+.bar.light {
+  background: rgb(146, 199, 191);
+  padding: 0px;
+}
+
+.bar.white {
+  background: rgb(255,255,255);
+  border: 1px solid rgb(150,150,150);
+  padding: 0px;
+}
+
+.bar.white .bar {
+  margin: -1px;
+}
+
+section {
+  margin-bottom: 50px;
 }
