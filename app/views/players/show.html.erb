@@ -1,0 +1,28 @@
+<div class="container">
+  <div class="row">
+    <h5>Logs for <%= @player_name %></h5>
+  </div>
+  <br /><br />
+
+  <% @zones.each do |zone| %>
+    <h4><%= zone.name %></h4>
+    <table class="u-full-width">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Parses</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% zone.bosses.each do |boss| %>
+          <tr>
+            <td><%= boss.name %></td>
+            <td><%= @player_bosses[boss.id] ||= 0 %></td>
+            <td><%= link_to('Compare', player_boss_path(@player_id, boss.id), class: 'button') if @player_bosses[boss.id] > 0 %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

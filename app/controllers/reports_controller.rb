@@ -23,9 +23,10 @@ class ReportsController < ApplicationController
       end
     end
 
-    Report.where(report_id: @report_id).first.update_attribute(:imported, true)
+    report = Report.where(report_id: @report_id).first
+    report.update_attribute(:imported, true)
 
-    redirect_to user_path(@user_id)
+    redirect_to user_path(report.user_id)
   end
 
   def show
@@ -37,6 +38,5 @@ class ReportsController < ApplicationController
 
   def get_report
     @report_id = params[:report_id] || params[:id]
-    @user_id = params[:user_id]
   end
 end

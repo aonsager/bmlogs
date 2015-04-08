@@ -12,16 +12,24 @@ Rails.application.routes.draw do
   resources :users, only: [:show] do
     get 'refresh'
 
-    resources :reports, only: [:show] do
-      get 'import'
+    resources :players, only: [:index]
 
-      resources :fights, only: [:show] do
-        get 'parse'
-      end
-    end
   end
 
-  
+  resources :fights, only: [:show]
+
+  resources :players, only: [:show] do
+    resources :bosses, only: [:show]
+    resources :fights, only: [:index]
+  end
+
+  resources :reports, only: [:show] do
+    get 'import'
+
+    resources :fights, only: [] do
+      get 'parse'
+    end
+  end
 
   resources :zones, only: [:index] do
     collection do 

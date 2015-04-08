@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="row">
+    <div class="one-half column">
+      <h5>Logs for <%= @user_id %></h5>
+    </div>
+    <div class="one-half column u-align-right u-valign">
+    <%= link_to('Refresh', user_refresh_path(@user_id), class: 'button') %>
+    </div>
+  </div>
+
+  <%= link_to('View Reports', user_path(@user_id), class: 'button') %>
+  <%= link_to('View Characters', '', class: 'button button-primary') %>
+  <br /><br />
+
+  <table class="u-full-width">
+    <thead>
+      <tr>
+        <th>Character</th>
+        <th>Parses</th>
+        <th></th>
+      </tr>
+    </thead>
+  <% @players.each do |player| %>
+    <tr>
+      <td><%= player.player_name %></td>
+      <td><%= @report_counts[player.player_id] %></td>
+      <td><%= link_to('View Reports', player_path(player.player_id), class: 'button') %></td>
+    </tr>
+  <% end %>
+  </table>
+</div>

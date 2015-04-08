@@ -22,6 +22,7 @@ class UsersController < ApplicationController
 
   def show
     @reports = Report.where(user_id: @user_id).order(started_at: :desc)
+    
   end
 
   private

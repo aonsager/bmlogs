@@ -1,13 +1,16 @@
 <div class="container">
   <div class="row">
     <div class="one-half column">
-      <h2>Logs for <%= @user_id %></h2>
+      <h5>Logs for <%= @user_id %></h5>
     </div>
     <div class="one-half column u-align-right u-valign">
-    <%= link_to('Refresh', user_refresh_path(@user_id), class: 'button') %>
+    <%= link_to('Reload Logs', user_refresh_path(@user_id), class: 'button') %>
     </div>
   </div>
 
+  <%= link_to('View Reports', '', class: 'button button-primary') %>
+  <%= link_to('View Characters', user_players_path(@user_id), class: 'button') %>
+  <br /><br />
 
   <table class="u-full-width">
     <thead>
@@ -21,7 +24,7 @@
     <tr>
       <td><%= report.title %></td>
       <td><%= report.started_at.strftime("%m/%d/%Y") %></td>
-      <td><%= report.imported? ? link_to('View Report', user_report_path(@user_id, report.report_id), class: 'button') : link_to('Import', user_report_import_path(@user_id, report.report_id), class: 'button button-primary') %></td>
+      <td><%= report.imported? ? link_to('View Report', report_path(report.report_id), class: 'button') : link_to('Import', report_import_path(report.report_id), class: 'button button-primary') %></td>
     </tr>
   <% end %>
   </table>

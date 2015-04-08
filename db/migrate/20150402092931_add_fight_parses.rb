@@ -49,7 +49,7 @@ class AddFightParses < ActiveRecord::Migration
       t.integer  :average_dmg, default: 0
     end
 
-    add_index :fight_parses, :fight_id, :unique => true
+    add_index :fight_parses, [:fight_id, :player_id], :unique => true
     add_index :eb_sources, [:fight_parse_id, :source_id, :ability_id], :unique => true
   end
 end

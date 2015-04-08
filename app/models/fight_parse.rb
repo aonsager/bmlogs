@@ -44,6 +44,10 @@ class FightParse < ActiveRecord::Base
 
   # getters
 
+  def fight_date
+    return Report.where(report_id: self.fight.report_id).first.started_at.strftime("%-m/%-d")
+  end
+
   def fight_time
     return (self.ended_at - self.started_at) / 1000
   end
@@ -158,7 +162,7 @@ class FightParse < ActiveRecord::Base
   end
 
   def record_damage(source_id, guid, name, amount, absorbed)
-    source_id ||= 0
+    source_id ||= -1
     @damage_by_source[source_id] ||= {}
     ability = @damage_by_source[source_id][guid] ||= {name: name, avg: 0.0, count: 0}
     ability[:avg] = ability[:avg] * ability[:count] / (ability[:count] + 1) + (amount + absorbed) * 1 / (ability[:count] + 1)
@@ -166,7 +170,7 @@ class FightParse < ActiveRecord::Base
   end
 
   def dodge(source_id, ability_id, ability_name)
-    source ||= 0
+    source ||= -1
     # source = EbSource.where(eb_parse_id: @current_eb.id, source_id: source_id, ability_id: ability_id).first_or_initialize
     # source.ability_name = ability_name
     # source.dodged += 1

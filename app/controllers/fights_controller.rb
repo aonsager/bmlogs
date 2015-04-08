@@ -1,23 +1,33 @@
 class FightsController < ApplicationController
-  before_filter :get_fight
 
   def parse
+    @fight_id = params[:fight_id] || params[:id]
+    @report_id = params[:report_id]
+    @fight = Fight.where(report_id: @report_id, fight_id: @fight_id).first
+    @user_id = params[:user_id]
+    debug = false
+
     response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{@report_id}?start=#{@fight.started_at}&api_key=#{ENV['API_KEY']}")
     obj = JSON.parse(response.body)
     composition = obj['composition']
     events = obj['events']
-    bm_ids = {3 => 159857230}
+    bm_ids = {}
     fight_parses = {}
     owners_by_pet_id = {}
     user_id = Report.where(report_id: @fight.report_id).first.user_id
 
     composition.each do |player|
-      bm_ids[player['id']] = player['guid'] if player['specs'][0]['spec'] == "Brewmaster"
+      puts player if debug
+      bm_ids[player['id']] = {guid: player['guid'], name: player['name']} if player['specs'][0]['spec'] == "Brewmaster"
     end
 
-    bm_ids.each do |bm_id, guid|
-      FightParse.where(fight_id: @fight.id, user_id: user_id, player_id: bm_id).destroy_all
-      fight_parses[bm_id] = FightParse.create(fight_id: @fight.id, user_id: user_id, player_id: bm_id)
+    puts bm_ids if debug
+
+    bm_ids.each do |bm_id, bm_hash|
+      u2p = UserToPlayer.where(user_id: user_id, player_id: bm_hash[:guid]).first_or_initialize
+      u2p.update_attributes(player_name: bm_hash[:name])
+      FightParse.where(fight_id: @fight.id, user_id: user_id, player_id: bm_hash[:guid]).destroy_all
+      fight_parses[bm_id] = FightParse.create(fight_id: @fight.id, user_id: user_id, player_id: bm_hash[:guid], boss_id: @fight.boss_id)
       fight_parses[bm_id].started_at = @fight.started_at
       fight_parses[bm_id].ended_at = @fight.ended_at
     end
@@ -26,6 +36,7 @@ class FightsController < ApplicationController
       cursor = @fight.started_at
       events.each do |event|
         if bm_ids.has_key?(event['sourceID']) # the player did something
+          puts event if debug
           fp = fight_parses[event['sourceID']]
           case event['type']
           when 'cast'
@@ -124,13 +135,15 @@ class FightsController < ApplicationController
       fight_parses[bm_id].print
     end
 
-    redirect_to user_report_fight_path(@user_id, @report_id, @fight_id)
+    redirect_to report_path(@report_id)
   end
 
   def show
-    @fight = Fight.where(report_id: @report_id, fight_id: @fight_id).first
-    @report = Report.where(report_id: @report_id).first
-    @fp = FightParse.where(fight_id: @fight.id).first
+    @fight_id = params[:id]
+    @player_id = params[:player_id]
+    @fight = Fight.where(id: @fight_id).first
+    @report = Report.where(report_id: @fight.report_id).first
+    @fp = FightParse.where(fight_id: @fight_id).first
 
     case params[:tab]
     when 'resources'
@@ -140,14 +153,5 @@ class FightsController < ApplicationController
     else
       render template: 'fights/show_basic'
     end
-  end
-
-  private
-
-  def get_fight
-    @fight_id = params[:fight_id] || params[:id]
-    @fight = Fight.where(fight_id: @fight_id).first
-    @report_id = params[:report_id]
-    @user_id = params[:user_id]
   end
 end
