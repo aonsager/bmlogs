@@ -6,15 +6,22 @@ class BossesController < ApplicationController
     @boss_name = Boss.find(@boss_id).name
 
     @fights = FightParse.where(player_id: @player_id, boss_id: @boss_id)
-    @max_dps = 0
-    @max_dtps = 0
-    @max_shps = 0
-    @max_ehps = 0
-    @fights.each do |f|
-      @max_dps = f.dps if f.dps > @max_dps
-      @max_dtps = f.dtps if f.dtps > @max_dtps
-      @max_shps = f.shps if f.shps > @max_shps
-      @max_ehps = f.ehps if f.ehps > @max_ehps
+
+    case params[:tab]
+    when 'resources'
+      render template: 'bosses/show_resources'
+    else
+      @max_dps = 0
+      @max_dtps = 0
+      @max_shps = 0
+      @max_ehps = 0
+      @fights.each do |f|
+        @max_dps = f.dps if f.dps > @max_dps
+        @max_dtps = f.dtps if f.dtps > @max_dtps
+        @max_shps = f.shps if f.shps > @max_shps
+        @max_ehps = f.ehps if f.ehps > @max_ehps
+      end
+      render template: 'bosses/show_basic'
     end
   end
 end
