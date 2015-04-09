@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150408065019) do
+ActiveRecord::Schema.define(version: 20150409033606) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,11 @@ ActiveRecord::Schema.define(version: 20150408065019) do
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "guard_absorbed",      default: 0
+    t.integer  "guard_healed",        default: 0
+    t.integer  "eb_avoided",          default: 0
+    t.integer  "dh_reduced",          default: 0
+    t.integer  "dm_reduced",          default: 0
   end
 
   add_index "fight_parses", ["fight_id", "player_id"], name: "index_fight_parses_on_fight_id_and_player_id", unique: true, using: :btree

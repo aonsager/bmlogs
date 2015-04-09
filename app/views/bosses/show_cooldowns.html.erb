@@ -1,0 +1,37 @@
+<div class="container">
+  <h5><small><%= link_to @player_name, player_path(@player_id) %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@boss_name}" %></h5>
+
+  <%= link_to('Key Metrics', '?tab=basic', class: 'button') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'button') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button button-primary') %>
+  <br /><br />
+  <section>
+    <h4>Guard Effectiveness</h4>
+    <% @fights.each do |fp| %>
+      <div class="row">
+      <div class="one column"><%= fp.fight_date %></div>
+      <div class="five columns">
+        <div class="bar light" style="width: <%= 100 * fp.gps / @max_gps %>%">
+          <div class="bar" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed) %>%"><%= fp.gps %></div>
+        </div>
+      </div>
+      <div class="three columns"><%= fp.guard_healed / 1000 %>k healed, <%= fp.guard_absorbed / 1000 %>k absorbed</div>
+    </div>
+    <% end %>
+  </section>
+
+  <section>
+    <h4>Elusive Brew Effectiveness</h4>
+    <% @fights.each do |fp| %>
+      <div class="row">
+      <div class="one column"><%= fp.fight_date %></div>
+      <div class="five columns">
+          <div class="bar" style="width: <%= 100 * fp.ebps / @max_ebps %>%">
+            <%= fp.ebps %>
+          </div>
+      </div>
+      <div class="three columns"><%= fp.eb_avoided / 1000 %>k avoided</div>
+    </div>
+    <% end %>
+  </section>
+</div>

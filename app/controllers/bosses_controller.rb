@@ -10,6 +10,14 @@ class BossesController < ApplicationController
     case params[:tab]
     when 'resources'
       render template: 'bosses/show_resources'
+    when 'cooldowns'
+      @max_gps = 0
+      @max_ebps = 0
+      @fights.each do |f|
+        @max_gps = f.gps if f.gps > @max_gps
+        @max_ebps = f.ebps if f.ebps > @max_ebps
+      end
+      render template: 'bosses/show_cooldowns'
     else
       @max_dps = 0
       @max_dtps = 0

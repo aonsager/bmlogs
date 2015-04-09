@@ -45,7 +45,7 @@ a.button-primary[disabled] {
   box-sizing: border-box;
   color: white;
   padding: 0px 10px;
-  overflow: hidden;
+  overflow: show;
 }
 
 .bar.light {

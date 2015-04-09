@@ -1,0 +1,40 @@
+<% max_bar = [
+    @fp.gps,
+    @fp.ebps
+  ].max
+%>
+
+<div class="container">
+  <h5><small><%= link_to @report.user_id, user_path(@report.user_id) %>&nbsp;&nbsp;>&nbsp;&nbsp;<%= link_to @report.title, report_path(@report.report_id) %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@fight.name} (#{@fp.fight_time / 60}:#{@fp.fight_time % 60})" %></h5>
+
+  <%= link_to('Key Metrics', '?tab=basic', class: 'button') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'button') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button button-primary') %>
+  <br /><br />
+
+  <section>
+    <h4>Guard Effectiveness</h4>
+    <div class="row">
+      <div class="one column"><%= @fp.fight_date %></div>
+      <div class="five columns">
+        <div class="bar light" style="width: <%= 100 * @fp.gps / max_bar %>%">
+          <div class="bar" style="width: <%= 100 * @fp.guard_healed / (@fp.guard_absorbed + @fp.guard_healed) %>%"><%= @fp.gps %></div>
+        </div>
+      </div>
+      <div class="three columns"><%= @fp.guard_healed / 1000 %>k healed, <%= @fp.guard_absorbed / 1000 %>k absorbed</div>
+    </div>
+  </section>
+
+  <section>
+    <h4>Elusive Brew Effectiveness</h4>
+    <div class="row">
+      <div class="one column"><%= @fp.fight_date %></div>
+      <div class="five columns">
+          <div class="bar" style="width: <%= 100 * @fp.ebps / max_bar %>%">
+            <%= @fp.ebps %>
+          </div>
+      </div>
+      <div class="three columns"><%= @fp.eb_avoided / 1000 %>k avoided</div>
+    </div>
+  </section>
+</div>

@@ -68,6 +68,36 @@ class FightParse < ActiveRecord::Base
     return (self.external_healing + self.external_absorbing) / self.fight_time
   end
 
+  def gps
+    return (self.guard_absorbed + self.guard_healed) / self.fight_time
+  end
+
+  def ebps
+    return self.eb_avoided / self.fight_time
+  end
+
+  def calc_guard_total
+    total = {absorbed: 0, healed: 0}
+    self.guard_parses.each do |g|
+      total[:absorbed] += g.absorbed
+      total[:healed] += g.healed / 1.3
+    end
+    return total
+  end
+
+  def calc_eb_total
+    total = 0
+    self.eb_parses.each do |eb|
+      eb.dodged_hash.each do |source_id, source|
+        source[:abilities].each do |ability_id, ability|
+          avoided_dmg = ability[:dodged] * self.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg
+          total += avoided_dmg
+        end
+      end
+    end
+    return total
+  end
+
   # setters
 
   def cast_kegsmash
@@ -220,7 +250,9 @@ class FightParse < ActiveRecord::Base
       # @total_eb += eb_dmg
       # puts ""
     end
-
+    self.guard_absorbed = self.calc_guard_total[:absorbed]
+    self.guard_healed = self.calc_guard_total[:healed]
+    self.eb_avoided = self.calc_eb_total
     self.fight.processed = true
     self.fight.save
   end
