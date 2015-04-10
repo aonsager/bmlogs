@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150410074308) do
+ActiveRecord::Schema.define(version: 20150410103456) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,13 +93,14 @@ ActiveRecord::Schema.define(version: 20150410074308) do
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
 
   create_table "guard_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id",             null: false
+    t.integer  "fight_parse_id",                      null: false
     t.integer  "absorbed",       default: 0
     t.integer  "healed",         default: 0
     t.integer  "started_at"
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "damage_hash",    default: "--- {}\n"
   end
 
   create_table "reports", force: :cascade do |t|

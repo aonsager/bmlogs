@@ -42,7 +42,6 @@ class FightsController < ApplicationController
           when 'cast'
             fp.cast_kegsmash if event['ability']['guid'] == 121253
             fp.cast_tigerpalm if event['ability']['guid'] == 100787
-            # puts "#{event['resourceActor']}, #{event['resourceAmount']}, #{event['maxResourceAmount']}, #{event['resourceType']}"
             if event['resourceType'] == 3 # check if energy capped
               if event['resourceAmount'] == event['maxResourceAmount']
                 fp.cap(true, event['timestamp']) unless (fp.capped || fp.serenity)
@@ -149,7 +148,7 @@ class FightsController < ApplicationController
     when 'resources'
       render template: 'fights/show_resources'
     when 'cooldowns'
-      @max_guard = 0
+      @max_guard = 1
       @max_eb = @fp.eb_parses.maximum(:total_avoided)
       @fp.guard_parses.each {|g| @max_guard = (g.absorbed + g.healed) if (g.absorbed + g.healed) > @max_guard}
       render template: 'fights/show_cooldowns'

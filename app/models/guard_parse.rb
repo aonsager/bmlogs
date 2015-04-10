@@ -1,5 +1,6 @@
 class GuardParse < ActiveRecord::Base
   belongs_to :fight_parse
+  serialize :damage_hash, Hash
 
   def self.total_guard(fight_parse_id)
     total = 0

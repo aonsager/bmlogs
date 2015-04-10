@@ -27,15 +27,31 @@
 
   <section>
     <% @fp.guard_parses.order(id: :asc).each do |guard| %>
-      <div class="row">
-      <div class="two columns u-align-right"><%= guard.time_s %></div>
+      <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
+      <div class="two columns u-align-right"><%= guard.time_s %> <img src="/assets/down.png" /></div>
       <div class="five columns">
         <div class="bar light" style="width: <%= 100 * (guard.absorbed + guard.healed) / @max_guard %>%">
-          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed + guard.healed) %>%"><%= (guard.absorbed + guard.healed) / 1000 %>k</div>
+          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed + guard.healed) rescue 0 %>%"><%= (guard.absorbed + guard.healed) / 1000 %>k</div>
         </div>
       </div>
       <div class="three columns"><%= guard.healed / 1000 %>k healed, <%= guard.absorbed / 1000 %>k absorbed</div>
     </div>
+    <div id="g-<%= guard.id %>" class="row slideout">
+        <div class="two columns">&nbsp;</div>
+        <div class="five columns">
+          <table style="width: 100%">
+            <thead><tr><th>Ability</th><th>Damage</th></tr></thead>
+            <tbody>
+              <% guard.damage_hash.each do |ability_id, ability_hash| %>
+                <tr>
+                  <td><%= ability_hash[:name] %></td>
+                  <td><%= ability_hash[:amount] %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     <% end %>
   </section>
 
@@ -59,10 +75,10 @@
         <div class="five columns">
           <div class="bar" style="width: <%= 100 * eb.total_avoided / @max_eb %>%"><%= eb.total_avoided / 1000 %>k</div>
         </div>
-        <div class="three columns"><%= eb.total_avoided %> avoided</div>
+        <div class="three columns"><%= eb.total_avoided %> dmg / <%= eb.time %> sec</div>
       </div>
       <div id="eb-<%= eb.id %>" class="row slideout">
-      <div class="two columns">&nbsp;</div>
+        <div class="two columns">&nbsp;</div>
         <div class="five columns">
           <table style="width: 100%">
             <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>

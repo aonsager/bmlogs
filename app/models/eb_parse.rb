@@ -15,4 +15,12 @@ class EbParse < ActiveRecord::Base
   def time_s
     return "#{self.start_time} - #{self.end_time}"
   end
+
+  def time
+    return (self.ended_at - self.started_at) / 1000
+  end
+
+  def daps
+    return 1000 * self.total_avoided / (self.ended_at - self.started_at)
+  end
 end
