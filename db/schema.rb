@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150409033606) do
+ActiveRecord::Schema.define(version: 20150410074308) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20150409033606) do
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "total_avoided",  default: 0
   end
 
   create_table "eb_sources", force: :cascade do |t|

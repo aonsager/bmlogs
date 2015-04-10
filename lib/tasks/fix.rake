@@ -7,4 +7,17 @@ namespace :fix do
       fp.save
     end
   end
+
+  task :eb => :environment do
+    EbParse.all.each do |eb|
+      eb.total_avoided = 0
+      eb.dodged_hash.each do |source_id, source|
+        source[:abilities].each do |ability_id, ability|
+          avoided_dmg = ability[:dodged] * EbSource.where(fight_parse_id: eb.fight_parse_id, source_id: source_id, ability_id: ability_id).first.average_dmg
+          eb.total_avoided += avoided_dmg
+        end
+      end
+      eb.save
+    end
+  end
 end

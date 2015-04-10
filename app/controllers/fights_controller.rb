@@ -149,6 +149,9 @@ class FightsController < ApplicationController
     when 'resources'
       render template: 'fights/show_resources'
     when 'cooldowns'
+      @max_guard = 0
+      @max_eb = @fp.eb_parses.maximum(:total_avoided)
+      @fp.guard_parses.each {|g| @max_guard = (g.absorbed + g.healed) if (g.absorbed + g.healed) > @max_guard}
       render template: 'fights/show_cooldowns'
     else
       render template: 'fights/show_basic'

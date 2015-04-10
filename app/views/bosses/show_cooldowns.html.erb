@@ -9,7 +9,7 @@
     <h4>Guard Effectiveness</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-      <div class="one column"><%= fp.fight_date %></div>
+      <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
       <div class="five columns">
         <div class="bar light" style="width: <%= 100 * fp.gps / @max_gps %>%">
           <div class="bar" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed) %>%"><%= fp.gps %></div>
@@ -24,7 +24,7 @@
     <h4>Elusive Brew Effectiveness</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-      <div class="one column"><%= fp.fight_date %></div>
+      <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
       <div class="five columns">
           <div class="bar" style="width: <%= 100 * fp.ebps / @max_ebps %>%">
             <%= fp.ebps %>

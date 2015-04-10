@@ -16,7 +16,7 @@
     <h4>Guard Effectiveness</h4>
     <div class="row">
       <div class="one column"><%= @fp.fight_date %></div>
-      <div class="five columns">
+      <div class="six columns">
         <div class="bar light" style="width: <%= 100 * @fp.gps / max_bar %>%">
           <div class="bar" style="width: <%= 100 * @fp.guard_healed / (@fp.guard_absorbed + @fp.guard_healed) %>%"><%= @fp.gps %></div>
         </div>
@@ -26,15 +26,60 @@
   </section>
 
   <section>
+    <% @fp.guard_parses.order(id: :asc).each do |guard| %>
+      <div class="row">
+      <div class="two columns u-align-right"><%= guard.time_s %></div>
+      <div class="five columns">
+        <div class="bar light" style="width: <%= 100 * (guard.absorbed + guard.healed) / @max_guard %>%">
+          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed + guard.healed) %>%"><%= (guard.absorbed + guard.healed) / 1000 %>k</div>
+        </div>
+      </div>
+      <div class="three columns"><%= guard.healed / 1000 %>k healed, <%= guard.absorbed / 1000 %>k absorbed</div>
+    </div>
+    <% end %>
+  </section>
+
+  <section>
     <h4>Elusive Brew Effectiveness</h4>
     <div class="row">
       <div class="one column"><%= @fp.fight_date %></div>
-      <div class="five columns">
+      <div class="six columns">
           <div class="bar" style="width: <%= 100 * @fp.ebps / max_bar %>%">
             <%= @fp.ebps %>
           </div>
       </div>
       <div class="three columns"><%= @fp.eb_avoided / 1000 %>k avoided</div>
     </div>
+  </section>
+
+  <section>
+    <% @fp.eb_parses.order(id: :asc).each do |eb| %>
+      <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
+        <div class="two columns u-align-right"><%= eb.time_s %> <img src="/assets/down.png" /></div>
+        <div class="five columns">
+          <div class="bar" style="width: <%= 100 * eb.total_avoided / @max_eb %>%"><%= eb.total_avoided / 1000 %>k</div>
+        </div>
+        <div class="three columns"><%= eb.total_avoided %> avoided</div>
+      </div>
+      <div id="eb-<%= eb.id %>" class="row slideout">
+      <div class="two columns">&nbsp;</div>
+        <div class="five columns">
+          <table style="width: 100%">
+            <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>
+            <tbody>
+              <% eb.dodged_hash.each do |source_id, source_hash| %>
+                <% source_hash[:abilities].each do |ability_id, ability_hash| %>
+                  <tr>
+                    <td><%= ability_hash[:name] %></td>
+                    <td><%= ability_hash[:dodged] %></td>
+                    <td><%= @fp.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg %></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
   </section>
 </div>

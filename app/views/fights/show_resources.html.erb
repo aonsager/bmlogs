@@ -25,7 +25,7 @@
       <div class="one column">2/20</div>
       <div class="five columns">
         <div class="bar white" style="width: 100%">
-          <div class="bar" style="width: <%= 100 * @fp.shuffle / @fp.fight_time %>%">
+          <div class="bar" style="width: <%= @fp.shuffle / (10 * @fp.fight_time) %>%">
             <%= @fp.shuffle / (10 * @fp.fight_time) %>%
           </div>
         </div>

@@ -88,12 +88,7 @@ class FightParse < ActiveRecord::Base
   def calc_eb_total
     total = 0
     self.eb_parses.each do |eb|
-      eb.dodged_hash.each do |source_id, source|
-        source[:abilities].each do |ability_id, ability|
-          avoided_dmg = ability[:dodged] * self.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg
-          total += avoided_dmg
-        end
-      end
+      total += eb.total_avoided
     end
     return total
   end
@@ -233,14 +228,14 @@ class FightParse < ActiveRecord::Base
     # calculate total damage avoided with Eb
     self.eb_parses.each do |eb|
       puts "Elusive Brew #{eb.started_at/1000}-#{eb.ended_at/1000}:"
-      eb_dmg = 0
+      eb.total_avoided = 0
       eb.dodged_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
           avoided_dmg = ability[:dodged] * self.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg
-          eb_dmg += avoided_dmg
+          eb.total_avoided += avoided_dmg
         end
       end
-
+      eb.save
 
       # EbSource.where(eb_parse_id: eb.id).each do |source|
       #   eb_dmg += source.avoided_dmg
