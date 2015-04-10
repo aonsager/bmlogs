@@ -12,7 +12,7 @@
         <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="five columns">
           <div class="bar light" style="width: <%= 100 * fp.dps / @max_dps %>%">
-            <div class="bar" style="width: <%= 100 * fp.player_damage_done / (fp.player_damage_done + fp.pet_damage_done) %>%"><%= fp.dps %></div>
+            <div class="bar" style="width: <%= 100 * fp.player_damage_done / (fp.player_damage_done + fp.pet_damage_done) %>%"><%= fp.dps %>/s</div>
           </div>
         </div>
         <div class="six columns"><%= fp.player_damage_done / 1000 %>k total damage (<%= fp.pet_damage_done / 1000 %>k pet)</div>
@@ -27,7 +27,7 @@
         <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="five columns">
           <div class="bar" style="width: <%= 100 * fp.dtps / @max_dtps %>%">
-            <%= fp.dtps %>
+            <%= fp.dtps %>/s
           </div>
         </div>
         <div class="six columns"><%= fp.damage_taken / 1000 %>k total damage taken</div>
@@ -43,7 +43,7 @@
         <div class="five columns">
           <div class="bar light" style="width: <%= 100 * fp.shps / @max_shps %>%">
             <div class="bar" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) %>%">
-              <%= fp.shps %>
+              <%= fp.shps %>/s
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="five columns">
           <div class="bar light" style="width: <%= 100 * fp.ehps / @max_ehps %>%">
             <div class="bar" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) %>%">
-              <%= fp.ehps %>
+              <%= fp.ehps %>/s
             </div>
           </div>
         </div>
