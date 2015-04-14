@@ -71,6 +71,8 @@ ActiveRecord::Schema.define(version: 20150410103456) do
     t.integer  "eb_avoided",          default: 0
     t.integer  "dh_reduced",          default: 0
     t.integer  "dm_reduced",          default: 0
+    t.integer  "zm_reduced",          default: 0
+    t.integer  "fb_reduced",          default: 0
   end
 
   add_index "fight_parses", ["fight_id", "player_id"], name: "index_fight_parses_on_fight_id_and_player_id", unique: true, using: :btree

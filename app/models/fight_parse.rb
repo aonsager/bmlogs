@@ -27,6 +27,10 @@ class FightParse < ActiveRecord::Base
 
     @serenity = false
     @shuffling = false
+    @zming = false
+    @fbing = false
+    @dhing = false
+    @dming = false
 
     @guarding = false
     self.guard_parses.destroy
@@ -214,7 +218,6 @@ class FightParse < ActiveRecord::Base
     end
 
     # save average damage by ability
-    puts @damage_by_source
     @damage_by_source.each do |source_id, abilities|
       abilities.each do |ability_id, ability|
         EbSource.create(fight_parse_id: self.id, source_id: source_id, ability_id: ability_id, ability_name: ability[:name], average_dmg: ability[:avg])
@@ -223,7 +226,6 @@ class FightParse < ActiveRecord::Base
 
     # calculate total damage avoided with Eb
     self.eb_parses.each do |eb|
-      puts "Elusive Brew #{eb.started_at/1000}-#{eb.ended_at/1000}:"
       eb.total_avoided = 0
       eb.dodged_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
