@@ -61,6 +61,7 @@ GEM
     globalid (0.3.3)
       activesupport (>= 4.1.0)
     hike (1.2.3)
+    hirefire-resource (0.3.5)
     httparty (0.13.1)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
@@ -177,6 +178,7 @@ DEPENDENCIES
   binding_of_caller
   byebug
   coffee-rails (~> 4.1.0)
+  hirefire-resource
   httparty
   jbuilder (~> 2.0)
   jquery-rails
