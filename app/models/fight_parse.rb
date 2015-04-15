@@ -1,27 +1,10 @@
 class FightParse < ActiveRecord::Base
   belongs_to :fight
-  has_many :guard_parses, dependent: :destroy
-  has_many :eb_parses, dependent: :destroy
-  has_many :eb_sources, dependent: :destroy
+  has_many :cooldown_parses, dependent: :destroy
   after_create :init_vars
-  attr_accessor :ebing, :capped, :serenity
+  attr_accessor :capped, :serenity
 
   def init_vars
-    self.kegsmash = 0
-    self.tigerpalm = 0
-    self.shuffle = 0
-    self.capped_time = 0
-    self.damage_to_stagger = 0
-    self.damage_from_stagger = 0
-    self.player_damage_done = 0
-    self.pet_damage_done = 0
-    self.damage_taken = 0
-    self.self_healing = 0
-    self.self_absorbing = 0
-    self.external_healing = 0
-    self.external_absorbing = 0
-    self.save
-
     @capped = false
     @capped_started_at = 0
 
@@ -33,14 +16,10 @@ class FightParse < ActiveRecord::Base
     @dming = false
 
     @guarding = false
-    self.guard_parses.destroy
-    @current_guard = GuardParse.new(fight_parse_id: self.id, started_at: started_at)
+    @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: started_at)
 
     @ebing = false
-    self.eb_parses.destroy
-    @current_eb = EbParse.new(fight_parse_id: self.id, started_at: started_at)
-    # @dodge = {}
-    # {sources: {}, started_at: started_at, ended_at: started_at}
+    @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: started_at)
     @total_eb = 0
 
     @damage_by_source = {}
@@ -82,17 +61,17 @@ class FightParse < ActiveRecord::Base
 
   def calc_guard_total
     total = {absorbed: 0, healed: 0}
-    self.guard_parses.each do |g|
-      total[:absorbed] += g.absorbed
-      total[:healed] += g.healed / 1.3
+    self.cooldown_parses.guard.each do |g|
+      total[:absorbed] += g.absorbed_amount
+      total[:healed] += g.healed_amount / 1.3
     end
     return total
   end
 
   def calc_eb_total
     total = 0
-    self.eb_parses.each do |eb|
-      total += eb.total_avoided
+    self.cooldown_parses.eb.each do |eb|
+      total += eb.reduced_amount
     end
     return total
   end
@@ -116,17 +95,17 @@ class FightParse < ActiveRecord::Base
 
   def gain_guard(timestamp)
     @guarding = true
-    @current_guard = GuardParse.new(fight_parse_id: self.id, started_at: timestamp)
+    @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: timestamp)
   end
 
   def guard(amount)
-    @current_guard.absorbed += amount
+    @current_guard.absorbed_amount += amount
     self_absorb(amount)
   end
 
   def drop_guard(timestamp)
     @current_guard.ended_at = timestamp
-    @current_guard.save if @guarding # if fight started with guard up, ignore for averages
+    @current_guard.save
     @guarding = false
   end
 
@@ -143,12 +122,12 @@ class FightParse < ActiveRecord::Base
 
   def gain_eb(timestamp)
     @ebing = true
-    @current_eb = EbParse.new(fight_parse_id: self.id, started_at: timestamp)
+    @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: timestamp)
   end
 
   def drop_eb(timestamp)
     @current_eb.ended_at = timestamp
-    @current_eb.save if @ebing # if fight started with elusive brew up, ignore for averages
+    @current_eb.save
     @ebing = false
   end
 
@@ -178,7 +157,7 @@ class FightParse < ActiveRecord::Base
 
   def self_heal(amount)
     self.self_healing += amount
-    @current_guard.healed += amount if @guarding
+    @current_guard.healed_amount += amount if @guarding
   end
 
   def external_absorb(amount)
@@ -189,48 +168,40 @@ class FightParse < ActiveRecord::Base
     self.external_healing += amount
   end
 
-  def record_damage(source_id, guid, name, amount, absorbed)
+  def record_damage(source_id, ability_id, name, amount, absorbed)
     source_id ||= -1
     @damage_by_source[source_id] ||= {}
-    ability = @damage_by_source[source_id][guid] ||= {name: name, avg: 0.0, count: 0}
-    ability[:avg] = ability[:avg] * ability[:count] / (ability[:count] + 1) + (amount + absorbed) * 1 / (ability[:count] + 1)
+    ability = @damage_by_source[source_id][ability_id] ||= {name: name, count: 0, total: 0}
+    ability[:total] += amount + absorbed
     ability[:count] += 1
     if @guarding
-      @current_guard.damage_hash[guid] ||= {name: name, amount: 0}
-      @current_guard.damage_hash[guid][:amount] += (amount + absorbed)
+      @current_guard.ability_hash[ability_id] ||= {name: name, amount: 0}
+      @current_guard.ability_hash[ability_id][:amount] += (amount + absorbed)
     end
   end
 
   def dodge(source_id, ability_id, ability_name)
+    return unless @ebing
     source ||= -1
-    @current_eb.dodged_hash[source_id] ||= {name: 'Source Name', abilities: {}}
-    @current_eb.dodged_hash[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0}
-    @current_eb.dodged_hash[source_id][:abilities][ability_id][:dodged] += 1
+    @current_eb.ability_hash[source_id] ||= {name: 'Source Name', abilities: {}}
+    @current_eb.ability_hash[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0, avg: 0}
+    @current_eb.ability_hash[source_id][:abilities][ability_id][:dodged] += 1
   end
 
   def clean
-    # end shuffle if fight ended with shuffle still up
-    self.shuffle += self.ended_at if @shuffling
-
-    # calculate total damage healed/absorbed with guard
-    self.guard_parses.each do |g|
-      guarded = g.absorbed + (g.healed/1.3).to_i
-    end
-
-    # save average damage by ability
-    @damage_by_source.each do |source_id, abilities|
-      abilities.each do |ability_id, ability|
-        EbSource.create(fight_parse_id: self.id, source_id: source_id, ability_id: ability_id, ability_name: ability[:name], average_dmg: ability[:avg])
-      end
-    end
+    # end cooldowns
+    self.drop_shuffle(self.ended_at) if @shuffling
+    self.drop_guard(self.ended_at) if @guarding
+    self.drop_eb(self.ended_at) if @ebing
 
     # calculate total damage avoided with Eb
-    self.eb_parses.each do |eb|
-      eb.total_avoided = 0
-      eb.dodged_hash.each do |source_id, source|
+    self.cooldown_parses.eb.each do |eb|
+      eb.reduced_amount = 0
+      eb.ability_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
-          avoided_dmg = ability[:dodged] * self.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg
-          eb.total_avoided += avoided_dmg
+          ability[:avg] = @damage_by_source[source_id][ability_id][:total] / @damage_by_source[source_id][ability_id][:count]
+          avoided_dmg = ability[:dodged] * ability[:avg]
+          eb.reduced_amount += avoided_dmg
         end
       end
       eb.save
@@ -239,7 +210,7 @@ class FightParse < ActiveRecord::Base
     self.guard_absorbed = self.calc_guard_total[:absorbed]
     self.guard_healed = self.calc_guard_total[:healed]
     self.eb_avoided = self.calc_eb_total
-    self.fight.status = 2
+    self.fight.status = :done
     self.fight.save
   end
 

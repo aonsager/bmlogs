@@ -23,26 +23,18 @@ ActiveRecord::Schema.define(version: 20150408065019) do
     t.datetime "updated_at"
   end
 
-  create_table "eb_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id",                      null: false
-    t.text     "dodged_hash",    default: "--- {}\n"
-    t.integer  "total_avoided",  default: 0
+  create_table "cooldown_parses", force: :cascade do |t|
+    t.integer  "fight_parse_id",                       null: false
+    t.integer  "cooldown_type",                        null: false
+    t.integer  "absorbed_amount", default: 0
+    t.integer  "healed_amount",   default: 0
+    t.integer  "reduced_amount",  default: 0
+    t.text     "ability_hash",    default: "--- {}\n"
     t.integer  "started_at"
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "eb_sources", force: :cascade do |t|
-    t.integer "fight_parse_id",             null: false
-    t.integer "source_id",                  null: false
-    t.text    "source_name"
-    t.integer "ability_id",                 null: false
-    t.text    "ability_name"
-    t.integer "average_dmg",    default: 0
-  end
-
-  add_index "eb_sources", ["fight_parse_id", "source_id", "ability_id"], name: "index_eb_sources_on_fight_parse_id_and_source_id_and_ability_id", unique: true, using: :btree
 
   create_table "fight_parses", force: :cascade do |t|
     t.integer  "fight_id",                        null: false
@@ -93,17 +85,6 @@ ActiveRecord::Schema.define(version: 20150408065019) do
   end
 
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
-
-  create_table "guard_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id",                      null: false
-    t.integer  "absorbed",       default: 0
-    t.integer  "healed",         default: 0
-    t.text     "damage_hash",    default: "--- {}\n"
-    t.integer  "started_at"
-    t.integer  "ended_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "reports", force: :cascade do |t|
     t.string   "report_id",                  null: false

@@ -30,35 +30,18 @@ class AddFightParses < ActiveRecord::Migration
       t.timestamps
     end
 
-    create_table :guard_parses do |t|
+    create_table :cooldown_parses do |t|
       t.integer  :fight_parse_id, null: false
-      t.integer  :absorbed, default: 0
-      t.integer  :healed, default: 0
-      t.text     :damage_hash, default: {}.to_yaml
+      t.integer  :cooldown_type, null: false
+      t.integer  :absorbed_amount, default: 0
+      t.integer  :healed_amount, default: 0
+      t.integer  :reduced_amount, default: 0
+      t.text     :ability_hash, default: {}.to_yaml
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps
-    end
-
-    create_table :eb_parses do |t|
-      t.integer  :fight_parse_id, null: false
-      t.text     :dodged_hash, default: {}.to_yaml
-      t.integer  :total_avoided, default: 0
-      t.integer  :started_at
-      t.integer  :ended_at
-      t.timestamps
-    end
-
-    create_table :eb_sources do |t|
-      t.integer  :fight_parse_id, null: false
-      t.integer  :source_id, null: false
-      t.text     :source_name
-      t.integer  :ability_id, null: false
-      t.text     :ability_name
-      t.integer  :average_dmg, default: 0
     end
 
     add_index :fight_parses, [:fight_id, :player_id], :unique => true
-    add_index :eb_sources, [:fight_parse_id, :source_id, :ability_id], :unique => true
   end
 end

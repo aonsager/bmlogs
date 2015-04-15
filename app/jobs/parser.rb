@@ -1,7 +1,15 @@
 class Parser
   @queue = :parse
+  @fight_id = 0
+  @report_id = 0
+
+  def self.on_failure_reset(e, *args)
+    Fight.where(report_id: @report_id, fight_id: @fight_id).first.update_attributes(status: :failed)
+  end
 
   def self.perform(fight_id, report_id)
+    @fight_id = fight_id
+    @report_id = report_id
     fight = Fight.where(report_id: report_id, fight_id: fight_id).first
     response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['API_KEY']}")
     obj = JSON.parse(response.body)
@@ -103,7 +111,7 @@ class Parser
             unless [7,8].include? event['hitType'] # record damage from ability
               fp.record_damage(event['sourceID'], event['ability']['guid'], event['ability']['name'], event['amount'], event['absorbed'])
             end
-            if fp.ebing && event['hitType'] == 7 # dodge with elusive brew
+            if event['hitType'] == 7 # dodge
               fp.dodge(event['sourceID'], event['ability']['guid'], event['ability']['name'])
             end
           end

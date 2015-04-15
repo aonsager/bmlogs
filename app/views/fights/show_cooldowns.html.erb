@@ -28,15 +28,15 @@
   </section>
 
   <section>
-    <% @fp.guard_parses.order(id: :asc).each do |guard| %>
+    <% @fp.cooldown_parses.guard.order(id: :asc).each do |guard| %>
       <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
       <div class="two columns u-align-right"><%= guard.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
       <div class="five columns">
-        <div class="bar light" style="width: <%= 100 * (guard.absorbed + guard.healed) / @max_guard %>%">
-          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed + guard.healed) rescue 0 %>%"><%= (guard.absorbed + guard.healed) / 1000 %>k</div>
+        <div class="bar light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard %>%">
+          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed_amount + guard.healed_amount) rescue 0 %>%"><%= (guard.absorbed_amount + guard.healed_amount) / 1000 %>k</div>
         </div>
       </div>
-      <div class="three columns"><%= guard.healed / 1000 %>k healed, <%= guard.absorbed / 1000 %>k absorbed</div>
+      <div class="three columns"><%= guard.healed_amount / 1000 %>k healed, <%= guard.absorbed_amount / 1000 %>k absorbed</div>
     </div>
     <div id="g-<%= guard.id %>" class="row slideout">
         <div class="two columns">&nbsp;</div>
@@ -44,10 +44,10 @@
           <table style="width: 100%">
             <thead><tr><th>Ability</th><th>Incoming Damage</th></tr></thead>
             <tbody>
-              <% guard.damage_hash.each do |ability_id, ability_hash| %>
+              <% guard.ability_hash.each do |ability_id, hash| %>
                 <tr>
-                  <td><%= ability_hash[:name] %></td>
-                  <td><%= ability_hash[:amount] %></td>
+                  <td><%= hash[:name] %></td>
+                  <td><%= hash[:amount] %></td>
                 </tr>
               <% end %>
             </tbody>
@@ -71,13 +71,13 @@
   </section>
 
   <section>
-    <% @fp.eb_parses.order(id: :asc).each do |eb| %>
+    <% @fp.cooldown_parses.eb.order(id: :asc).each do |eb| %>
       <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
         <div class="two columns u-align-right"><%= eb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
         <div class="five columns">
-          <div class="bar" style="width: <%= 100 * eb.total_avoided / @max_eb %>%"><%= eb.total_avoided / 1000 %>k</div>
+          <div class="bar" style="width: <%= 100 * eb.reduced_amount / @max_eb %>%"><%= eb.reduced_amount / 1000 %>k</div>
         </div>
-        <div class="three columns"><%= eb.total_avoided %> dmg / <%= eb.time %> sec</div>
+        <div class="three columns"><%= eb.reduced_amount %> dmg / <%= eb.time %> sec</div>
       </div>
       <div id="eb-<%= eb.id %>" class="row slideout">
         <div class="two columns">&nbsp;</div>
@@ -85,12 +85,12 @@
           <table style="width: 100%">
             <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>
             <tbody>
-              <% eb.dodged_hash.each do |source_id, source_hash| %>
-                <% source_hash[:abilities].each do |ability_id, ability_hash| %>
+              <% eb.ability_hash.each do |source_id, source_hash| %>
+                <% source_hash[:abilities].each do |ability_id, hash| %>
                   <tr>
-                    <td><%= ability_hash[:name] %></td>
-                    <td><%= ability_hash[:dodged] %></td>
-                    <td><%= @fp.eb_sources.where(source_id: source_id, ability_id: ability_id).first.average_dmg %></td>
+                    <td><%= hash[:name] %></td>
+                    <td><%= hash[:dodged] %></td>
+                    <td><%= hash[:avg] %></td>
                   </tr>
                 <% end %>
               <% end %>

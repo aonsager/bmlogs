@@ -4,7 +4,7 @@ class FightsController < ApplicationController
     fight_id = params[:fight_id] || params[:id]
     report_id = params[:report_id]
     Resque.enqueue(Parser, fight_id, report_id)
-    Fight.where(report_id: report_id, fight_id: fight_id).first.update_attributes(status: 1)
+    Fight.where(report_id: report_id, fight_id: fight_id).first.update_attributes(status: :processing)
 
     redirect_to report_path(report_id)
   end
@@ -21,8 +21,8 @@ class FightsController < ApplicationController
       render template: 'fights/show_resources'
     when 'cooldowns'
       @max_guard = 1
-      @max_eb = @fp.eb_parses.maximum(:total_avoided)
-      @fp.guard_parses.each {|g| @max_guard = (g.absorbed + g.healed) if (g.absorbed + g.healed) > @max_guard}
+      @max_eb = @fp.cooldown_parses.eb.maximum(:reduced_amount)
+      @fp.cooldown_parses.guard.each {|g| @max_guard = (g.absorbed_amount + g.healed_amount) if (g.absorbed_amount + g.healed_amount) > @max_guard}
       render template: 'fights/show_cooldowns'
     else
       render template: 'fights/show_basic'
