@@ -18,6 +18,13 @@ class AddFightParses < ActiveRecord::Migration
       t.integer  :self_absorbing, default: 0
       t.integer  :external_healing, default: 0
       t.integer  :external_absorbing, default: 0
+      t.integer  :guard_absorbed, default: 0
+      t.integer  :guard_healed, default: 0
+      t.integer  :eb_avoided, default: 0
+      t.integer  :dh_reduced, default: 0
+      t.integer  :dm_reduced, default: 0
+      t.integer  :zm_reduced, default: 0
+      t.integer  :fb_reduced, default: 0
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps
@@ -27,6 +34,7 @@ class AddFightParses < ActiveRecord::Migration
       t.integer  :fight_parse_id, null: false
       t.integer  :absorbed, default: 0
       t.integer  :healed, default: 0
+      t.text     :damage_hash, default: {}.to_yaml
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps
@@ -35,6 +43,7 @@ class AddFightParses < ActiveRecord::Migration
     create_table :eb_parses do |t|
       t.integer  :fight_parse_id, null: false
       t.text     :dodged_hash, default: {}.to_yaml
+      t.integer  :total_avoided, default: 0
       t.integer  :started_at
       t.integer  :ended_at
       t.timestamps
