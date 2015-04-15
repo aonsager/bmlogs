@@ -239,7 +239,7 @@ class FightParse < ActiveRecord::Base
     self.guard_absorbed = self.calc_guard_total[:absorbed]
     self.guard_healed = self.calc_guard_total[:healed]
     self.eb_avoided = self.calc_eb_total
-    self.fight.processed = true
+    self.fight.status = 2
     self.fight.save
   end
 

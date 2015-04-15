@@ -17,7 +17,7 @@
         <td><%= "#{DifficultyType.label(fight.difficulty)} #{fight.size} man" %></td>
         <td><%= fight.kill? ? "Kill" : "Wipe" %></td>
         <td><%= Time.at(fight.ended_at/1000 - fight.started_at/1000).strftime("%M:%S") %></td>
-        <td><%= fight.processed? ? link_to('View Fight', fight_path(fight.id), class: 'button disabled') : link_to('Process Fight', report_fight_parse_path(@report.report_id, fight.fight_id), class: 'button button-primary') %></td>
+        <td><%= fight.button_html %></td>
       </tr>
     <% end %>
   </table>

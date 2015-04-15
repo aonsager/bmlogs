@@ -31,7 +31,7 @@ class ReportsController < ApplicationController
 
   def show
     @report = Report.where(report_id: @report_id).first
-    @fights = Fight.where(report_id: @report_id)
+    @fights = Fight.where(report_id: @report_id).order(fight_id: :asc)
   end
 
   private
