@@ -16,14 +16,8 @@ class FightParse < ActiveRecord::Base
       'fb' => {active: false, cp: nil},
     }
 
-    # @guarding = false
-    # @ebing = false
     @serenity = false
     @shuffling = false
-    # @zming = false
-    # @fbing = false
-    # @dhing = false
-    # @dming = false
 
     @total_eb = 0
     @damage_by_source = {}
@@ -108,23 +102,12 @@ class FightParse < ActiveRecord::Base
     @cooldowns[type][:active] = false
   end
 
-  # def gain_guard(timestamp)
-  #   @guarding = true
-  #   @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: timestamp)
-  # end
-
   def guard(ability_id, name, amount)
     @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, amount: 0}
     @cooldowns['guard'][:cp].ability_hash[ability_id][:amount] += amount
     @cooldowns['guard'][:cp].absorbed_amount += amount
     self.self_absorb(amount)
   end
-
-  # def drop_guard(timestamp)
-  #   @current_guard.ended_at = timestamp
-  #   @current_guard.save
-  #   @guarding = false
-  # end
 
   def gain_shuffle(timestamp)
     @shuffling = true
@@ -136,50 +119,6 @@ class FightParse < ActiveRecord::Base
     @shuffling = false
     self.shuffle += timestamp
   end
-
-  # def gain_eb(timestamp)
-  #   @ebing = true
-  #   @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: timestamp)
-  # end
-
-  # def drop_eb(timestamp)
-  #   @current_eb.ended_at = timestamp
-  #   @current_eb.save
-  #   @ebing = false
-  # end
-
-  # def gain_zm(timestamp)
-  #   @zming = true
-  #   @current_zm = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'zm', started_at: timestamp)
-  # end
-
-  # def drop_zm(timestamp)
-  #   @current_zm.ended_at = timestamp
-  #   @current_zm.save
-  #   @zming = false
-  # end
-
-  # def gain_dm(timestamp)
-  #   @dming = true
-  #   @current_dm = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'dm', started_at: timestamp)
-  # end
-
-  # def drop_dm(timestamp)
-  #   @current_dm.ended_at = timestamp
-  #   @current_dm.save
-  #   @dming = false
-  # end
-
-  # def gain_dh(timestamp)
-  #   @dhing = true
-  #   @current_dh = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'dh', started_at: timestamp)
-  # end
-
-  # def drop_dh(timestamp)
-  #   @current_dh.ended_at = timestamp
-  #   @current_dh.save
-  #   @dhing = false
-  # end
 
   def stagger(amount)
     self.damage_to_stagger += amount
@@ -218,6 +157,7 @@ class FightParse < ActiveRecord::Base
     source_id ||= -1
     self.damage_taken += amount
     return if (amount + absorbed) == 0
+    return if ability_id == 124255 # ignore damage from stagger
 
     # work our way back up the mitigation stack to see how much each ability mitigated
     if @cooldowns['zm'][:active]
@@ -230,7 +170,7 @@ class FightParse < ActiveRecord::Base
       @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
       @cooldowns['fb'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
       @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) / 4 # 20% reduction
-      amount += @cooldowns['dh'][:cp].reduced_amount
+      amount += @cooldowns['fb'][:cp].reduced_amount
     end
     if @cooldowns['dm'][:active] && ability_type != 1 # record magic damage reduced by DM
       @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}

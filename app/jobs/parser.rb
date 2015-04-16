@@ -60,7 +60,13 @@ class Parser
             when 152173 # gain serenity
               fp.serenity = true
             when 122783 # gain diffuse magic
-              fp.gain_cooldown('dm', event['timestamp'])              
+              fp.gain_cooldown('dm', event['timestamp'])
+            when 122278 # gain dampen harm
+              fp.gain_cooldown('dh', event['timestamp'])    
+            when 115176 # gain zen meditation
+              fp.gain_cooldown('zm', event['timestamp'])
+            when 120954 # gain fortifying brew
+              fp.gain_cooldown('fb', event['timestamp'])
             end
           when 'removebuff'
             case event['ability']['guid'] 
@@ -74,6 +80,12 @@ class Parser
               fp.serenity = false
             when 122783 # drop diffuse magic
               fp.drop_cooldown('dm', event['timestamp'])
+            when 122278 # drop dampen harm
+              fp.drop_cooldown('dh', event['timestamp'])    
+            when 115176 # drop zen meditation
+              fp.drop_cooldown('zm', event['timestamp'])
+            when 120954 # drop fortifying brew
+              fp.drop_cooldown('fb', event['timestamp'])
             end
           when 'damage'
             fp.deal_damage_player(event['amount']) if !event['targetIsFriendly']
