@@ -7,21 +7,25 @@ class FightParse < ActiveRecord::Base
   def init_vars
     @capped = false
     @capped_started_at = 0
+    @cooldowns = {
+      'guard' => {active: false, cp: nil},
+      'eb' => {active: false, cp: nil},
+      'zm' => {active: false, cp: nil},
+      'dm' => {active: false, cp: nil},
+      'dh' => {active: false, cp: nil},
+      'fb' => {active: false, cp: nil},
+    }
 
+    # @guarding = false
+    # @ebing = false
     @serenity = false
     @shuffling = false
-    @zming = false
-    @fbing = false
-    @dhing = false
-    @dming = false
+    # @zming = false
+    # @fbing = false
+    # @dhing = false
+    # @dming = false
 
-    @guarding = false
-    @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: started_at)
-
-    @ebing = false
-    @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: started_at)
     @total_eb = 0
-
     @damage_by_source = {}
   end
 
@@ -93,21 +97,34 @@ class FightParse < ActiveRecord::Base
     @capped = capped
   end
 
-  def gain_guard(timestamp)
-    @guarding = true
-    @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: timestamp)
+  def gain_cooldown(type, timestamp)
+    @cooldowns[type][:active] = true
+    @cooldowns[type][:cp] = CooldownParse.new(fight_parse_id: self.id, cooldown_type: type, started_at: timestamp)
   end
 
-  def guard(amount)
-    @current_guard.absorbed_amount += amount
-    self_absorb(amount)
+  def drop_cooldown(type, timestamp)
+    @cooldowns[type][:cp].ended_at = timestamp
+    @cooldowns[type][:cp].save
+    @cooldowns[type][:active] = false
   end
 
-  def drop_guard(timestamp)
-    @current_guard.ended_at = timestamp
-    @current_guard.save
-    @guarding = false
+  # def gain_guard(timestamp)
+  #   @guarding = true
+  #   @current_guard = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'guard', started_at: timestamp)
+  # end
+
+  def guard(ability_id, name, amount)
+    @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, amount: 0}
+    @cooldowns['guard'][:cp].ability_hash[ability_id][:amount] += amount
+    @cooldowns['guard'][:cp].absorbed_amount += amount
+    self.self_absorb(amount)
   end
+
+  # def drop_guard(timestamp)
+  #   @current_guard.ended_at = timestamp
+  #   @current_guard.save
+  #   @guarding = false
+  # end
 
   def gain_shuffle(timestamp)
     @shuffling = true
@@ -120,16 +137,49 @@ class FightParse < ActiveRecord::Base
     self.shuffle += timestamp
   end
 
-  def gain_eb(timestamp)
-    @ebing = true
-    @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: timestamp)
-  end
+  # def gain_eb(timestamp)
+  #   @ebing = true
+  #   @current_eb = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'eb', started_at: timestamp)
+  # end
 
-  def drop_eb(timestamp)
-    @current_eb.ended_at = timestamp
-    @current_eb.save
-    @ebing = false
-  end
+  # def drop_eb(timestamp)
+  #   @current_eb.ended_at = timestamp
+  #   @current_eb.save
+  #   @ebing = false
+  # end
+
+  # def gain_zm(timestamp)
+  #   @zming = true
+  #   @current_zm = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'zm', started_at: timestamp)
+  # end
+
+  # def drop_zm(timestamp)
+  #   @current_zm.ended_at = timestamp
+  #   @current_zm.save
+  #   @zming = false
+  # end
+
+  # def gain_dm(timestamp)
+  #   @dming = true
+  #   @current_dm = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'dm', started_at: timestamp)
+  # end
+
+  # def drop_dm(timestamp)
+  #   @current_dm.ended_at = timestamp
+  #   @current_dm.save
+  #   @dming = false
+  # end
+
+  # def gain_dh(timestamp)
+  #   @dhing = true
+  #   @current_dh = CooldownParse.new(fight_parse_id: self.id, cooldown_type: 'dh', started_at: timestamp)
+  # end
+
+  # def drop_dh(timestamp)
+  #   @current_dh.ended_at = timestamp
+  #   @current_dh.save
+  #   @dhing = false
+  # end
 
   def stagger(amount)
     self.damage_to_stagger += amount
@@ -145,10 +195,6 @@ class FightParse < ActiveRecord::Base
 
   def deal_damage_pet(amount)
     self.pet_damage_done += amount
-  end
-
-  def take_damage(amount)
-    self.damage_taken += amount
   end
 
   def self_absorb(amount)
@@ -168,24 +214,51 @@ class FightParse < ActiveRecord::Base
     self.external_healing += amount
   end
 
-  def record_damage(source_id, ability_id, name, amount, absorbed)
+  def record_damage(source_id, ability_id, name, ability_type, amount, absorbed, max_hp)
     source_id ||= -1
+    self.damage_taken += amount
+    return if (amount + absorbed) == 0
+
+    # work our way back up the mitigation stack to see how much each ability mitigated
+    if @cooldowns['zm'][:active]
+      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
+      @cooldowns['zm'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['zm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
+      amount += @cooldowns['zm'][:cp].reduced_amount
+    end
+    if @cooldowns['fb'][:active]
+      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
+      @cooldowns['fb'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) / 4 # 20% reduction
+      amount += @cooldowns['dh'][:cp].reduced_amount
+    end
+    if @cooldowns['dm'][:active] && ability_type != 1 # record magic damage reduced by DM
+      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
+      @cooldowns['dm'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['dm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
+      amount += @cooldowns['dm'][:cp].reduced_amount
+    end
+    if @cooldowns['dh'][:active] && amount >= amount * 0.15
+      @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
+      @cooldowns['dh'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['dh'][:cp].reduced_amount += (amount + absorbed) # 50% reduction
+      amount += @cooldowns['dh'][:cp].reduced_amount
+    end
+
+    # record the attack's initial damage
     @damage_by_source[source_id] ||= {}
     ability = @damage_by_source[source_id][ability_id] ||= {name: name, count: 0, total: 0}
     ability[:total] += amount + absorbed
     ability[:count] += 1
-    if @guarding
-      @current_guard.ability_hash[ability_id] ||= {name: name, amount: 0}
-      @current_guard.ability_hash[ability_id][:amount] += (amount + absorbed)
-    end
+    
   end
 
   def dodge(source_id, ability_id, ability_name)
-    return unless @ebing
+    return unless @cooldowns['eb'][:active]
     source ||= -1
-    @current_eb.ability_hash[source_id] ||= {name: 'Source Name', abilities: {}}
-    @current_eb.ability_hash[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0, avg: 0}
-    @current_eb.ability_hash[source_id][:abilities][ability_id][:dodged] += 1
+    @cooldowns['eb'][:cp].ability_hash[source_id] ||= {name: 'Source Name', abilities: {}}
+    @cooldowns['eb'][:cp].ability_hash[source_id][:abilities][ability_id] ||= {name: ability_name, dodged: 0, avg: 0}
+    @cooldowns['eb'][:cp].ability_hash[source_id][:abilities][ability_id][:dodged] += 1
   end
 
   def clean

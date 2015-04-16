@@ -52,24 +52,28 @@ class Parser
           when 'applybuff'
             case event['ability']['guid'] 
             when 115295 # gain guard
-              fp.gain_guard(event['timestamp'])
+              fp.gain_cooldown('guard', event['timestamp'])
             when 115307 # gain shuffle
               fp.gain_shuffle(event['timestamp'])
             when 115308 # gain elusive brew
-              fp.gain_eb(event['timestamp'])
+              fp.gain_cooldown('eb', event['timestamp'])
             when 152173 # gain serenity
               fp.serenity = true
+            when 122783 # gain diffuse magic
+              fp.gain_cooldown('dm', event['timestamp'])              
             end
           when 'removebuff'
             case event['ability']['guid'] 
             when 115295 # drop guard
-              fp.drop_guard(event['timestamp'])
+              fp.drop_cooldown('guard', event['timestamp'])
             when 115307 # drop shuffle
               fp.drop_shuffle(event['timestamp'])
             when 115308 # drop elusive brew
-              fp.drop_eb(event['timestamp'])
+              fp.drop_cooldown('eb', event['timestamp'])
             when 152173 # drop serenity
               fp.serenity = false
+            when 122783 # drop diffuse magic
+              fp.drop_cooldown('dm', event['timestamp'])
             end
           when 'damage'
             fp.deal_damage_player(event['amount']) if !event['targetIsFriendly']
@@ -93,7 +97,7 @@ class Parser
               if event['ability']['guid'] == 115069 # stagger
                 fp.stagger(event['amount'])
               elsif event['ability']['guid'] == 115295 # guard
-                fp.guard(event['amount'])
+                fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'])
               else # just in case
                 fp.self_absorb(event['amount'])
               end
@@ -107,10 +111,7 @@ class Parser
               fp.external_heal(event['amount'])
             end
           when 'damage'
-            fp.take_damage(event['amount'])
-            unless [7,8].include? event['hitType'] # record damage from ability
-              fp.record_damage(event['sourceID'], event['ability']['guid'], event['ability']['name'], event['amount'], event['absorbed'])
-            end
+            fp.record_damage(event['sourceID'], event['ability']['guid'], event['ability']['name'], event['ability']['type'], event['amount'], event['absorbed'], event['maxHitPoints'])
             if event['hitType'] == 7 # dodge
               fp.dodge(event['sourceID'], event['ability']['guid'], event['ability']['name'])
             end
