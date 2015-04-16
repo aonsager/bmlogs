@@ -34,4 +34,69 @@
     </div>
     <% end %>
   </section>
+
+  <% if @max_dhps > 0 %>
+    <section>
+      <h4>Dampen Harm Effectiveness</h4>
+      <% @fights.each do |fp| %>
+        <div class="row">
+        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="five columns">
+            <div class="bar" style="width: <%= 100 * (fp.dh_reduced / fp.fight_time) / @max_dhps %>%">
+              <%= fp.dh_reduced / fp.fight_time %>/s
+            </div>
+        </div>
+        <div class="three columns"><%= fp.dh_reduced / 1000 %>k avoided</div>
+      </div>
+      <% end %>
+    </section>
+  <% end %>
+  <% if @max_dmps > 0 %>
+    <section>
+      <h4>Diffuse Magic Effectiveness</h4>
+      <% @fights.each do |fp| %>
+        <div class="row">
+        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="five columns">
+            <div class="bar" style="width: <%= 100 * (fp.dm_reduced / fp.fight_time) / @max_dmps %>%">
+              <%= fp.dm_reduced / fp.fight_time %>/s
+            </div>
+        </div>
+        <div class="three columns"><%= fp.dm_reduced / 1000 %>k avoided</div>
+      </div>
+      <% end %>
+    </section>
+  <% end %>
+  <% if @max_zmps > 0 %>
+    <section>
+      <h4>Zen Meditation Effectiveness</h4>
+      <% @fights.each do |fp| %>
+        <div class="row">
+        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="five columns">
+            <div class="bar" style="width: <%= 100 * (fp.zm_reduced / fp.fight_time) / @max_zmps %>%">
+              <%= fp.zm_reduced / fp.fight_time %>/s
+            </div>
+        </div>
+        <div class="three columns"><%= fp.zm_reduced / 1000 %>k avoided</div>
+      </div>
+      <% end %>
+    </section>
+  <% end %>
+  <% if @max_fbps > 0 %>
+    <section>
+      <h4>Fortifying Brew Effectiveness</h4>
+      <% @fights.each do |fp| %>
+        <div class="row">
+        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="five columns">
+            <div class="bar" style="width: <%= 100 * (fp.fb_reduced / fp.fight_time) / @max_fbps %>%">
+              <%= fp.fb_reduced / fp.fight_time %>/s
+            </div>
+        </div>
+        <div class="three columns"><%= fp.fb_reduced / 1000 %>k avoided</div>
+      </div>
+      <% end %>
+    </section>
+  <% end %>
 </div>

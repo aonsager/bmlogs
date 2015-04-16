@@ -13,9 +13,17 @@ class BossesController < ApplicationController
     when 'cooldowns'
       @max_gps = 0
       @max_ebps = 0
+      @max_dhps = 0
+      @max_dmps = 0
+      @max_zmps = 0
+      @max_fbps = 0
       @fights.each do |f|
         @max_gps = f.gps if f.gps > @max_gps
         @max_ebps = f.ebps if f.ebps > @max_ebps
+        @max_dhps = (f.dh_reduced / f.fight_time) if (f.dh_reduced / f.fight_time) > @max_dhps
+        @max_dmps = (f.dm_reduced / f.fight_time) if (f.dm_reduced / f.fight_time) > @max_dmps
+        @max_zmps = (f.zm_reduced / f.fight_time) if (f.zm_reduced / f.fight_time) > @max_zmps
+        @max_fbps = (f.fb_reduced / f.fight_time) if (f.fb_reduced / f.fight_time) > @max_fbps
       end
       render template: 'bosses/show_cooldowns'
     else

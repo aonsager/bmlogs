@@ -161,26 +161,26 @@ class FightParse < ActiveRecord::Base
 
     # work our way back up the mitigation stack to see how much each ability mitigated
     if @cooldowns['zm'][:active]
-      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
-      @cooldowns['zm'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['zm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
       @cooldowns['zm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['zm'][:cp].reduced_amount
     end
     if @cooldowns['fb'][:active]
-      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
-      @cooldowns['fb'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
-      @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) / 4 # 20% reduction
+      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['fb'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 5 / 3
+      @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) * 2 / 3 # 40% mitigation including increased stagger
       amount += @cooldowns['fb'][:cp].reduced_amount
     end
     if @cooldowns['dm'][:active] && ability_type != 1 # record magic damage reduced by DM
-      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
-      @cooldowns['dm'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['dm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
       @cooldowns['dm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['dm'][:cp].reduced_amount
     end
     if @cooldowns['dh'][:active] && amount >= amount * 0.15
-      @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {name: name, dmg_taken: 0}
-      @cooldowns['dh'][:cp].ability_hash[ability_id][:dmg_taken] += (amount + absorbed)
+      @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['dh'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 2
       @cooldowns['dh'][:cp].reduced_amount += (amount + absorbed) # 50% reduction
       amount += @cooldowns['dh'][:cp].reduced_amount
     end
@@ -223,6 +223,10 @@ class FightParse < ActiveRecord::Base
     self.guard_absorbed = self.calc_guard_total[:absorbed]
     self.guard_healed = self.calc_guard_total[:healed]
     self.eb_avoided = self.calc_eb_total
+    self.dh_reduced = self.cooldown_parses.dh.sum(:reduced_amount)
+    self.dm_reduced = self.cooldown_parses.dm.sum(:reduced_amount)
+    self.zm_reduced = self.cooldown_parses.zm.sum(:reduced_amount)
+    self.fb_reduced = self.cooldown_parses.fb.sum(:reduced_amount)
     self.fight.status = :done
     self.fight.save
   end

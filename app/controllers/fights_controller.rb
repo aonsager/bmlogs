@@ -22,6 +22,10 @@ class FightsController < ApplicationController
     when 'cooldowns'
       @max_guard = 1
       @max_eb = @fp.cooldown_parses.eb.maximum(:reduced_amount)
+      @max_dh = @fp.cooldown_parses.dh.maximum(:reduced_amount)
+      @max_dm = @fp.cooldown_parses.dm.maximum(:reduced_amount)
+      @max_zm = @fp.cooldown_parses.zm.maximum(:reduced_amount)
+      @max_fb = @fp.cooldown_parses.fb.maximum(:reduced_amount)
       @fp.cooldown_parses.guard.each {|g| @max_guard = (g.absorbed_amount + g.healed_amount) if (g.absorbed_amount + g.healed_amount) > @max_guard}
       render template: 'fights/show_cooldowns'
     else
