@@ -34,6 +34,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'httparty'
 
+gem 'gretel'
+
 # worker queues
 gem 'resque'
 gem "hirefire-resource"

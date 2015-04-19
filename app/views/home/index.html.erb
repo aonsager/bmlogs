@@ -1,6 +1,7 @@
-<div class="container">
-  <h2 class="title">Hello World</h2>
-  <p>
-    The time is now: <%= Time.now %>
-  </p>
+<div class="container text-center">
+  <h2>Warcraft Logs username:</h2>
+  <%= form_tag('', method: "get") do %>
+  <h2><%= text_field_tag(:user_id) %></h2>
+  <%= submit_tag("Start", class: "btn btn-primary btn-lg") %>
+<% end %>
 </div>

@@ -14,6 +14,32 @@
  *= require_self
  */
 
+ * {
+  font-family: 'Avenir', 'Arial', 'sans-serif';
+ }
+
+#header {
+  min-height: 30px;
+  width: 100%;
+  background-color: #333333;
+  color: #ffffff;
+  margin: 0px 0px 0px 0px;
+}
+
+#header > div {
+  float: left;
+  padding: 15px 30px;
+}
+
+#header a {
+  color: white;
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5 {
+  margin-bottom: 20px;
+}
+
 .row {
   margin-top: 10px;
 }

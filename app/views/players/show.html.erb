@@ -1,12 +1,13 @@
+<% breadcrumb :player, @player_id, @player_name, @user_id %>
 <div class="container">
   <div class="row">
-    <h5>Logs for <%= @player_name %></h5>
+    <h3>Logs for <%= @player_name %></h3>
   </div>
   <br /><br />
 
   <% @zones.each do |zone| %>
     <h4><%= zone.name %></h4>
-    <table class="u-full-width">
+    <table class="table">
       <thead>
         <tr>
           <th>Name</th>
@@ -19,7 +20,7 @@
           <tr>
             <td><%= boss.name %></td>
             <td><%= @player_bosses[boss.id] ||= 0 %></td>
-            <td><%= link_to('Compare', player_boss_path(@player_id, boss.id), class: 'button') if @player_bosses[boss.id] > 0 %></td>
+            <td><%= link_to('Compare', player_boss_path(@player_id, boss.id), class: 'btn btn-default') if @player_bosses[boss.id] > 0 %></td>
           </tr>
         <% end %>
       </tbody>

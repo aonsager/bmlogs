@@ -22,7 +22,6 @@ Rails.application.routes.draw do
 
   resources :players, only: [:show] do
     resources :bosses, only: [:show]
-    resources :fights, only: [:index]
   end
 
   resources :reports, only: [:show] do

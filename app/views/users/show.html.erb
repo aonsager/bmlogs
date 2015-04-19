@@ -1,18 +1,19 @@
+<% breadcrumb :user, @user_id %>
 <div class="container">
   <div class="row">
-    <div class="one-half column">
-      <h5>Logs for <%= @user_id %></h5>
+    <div class="col-md-6">
+      <h3>Logs for <%= @user_id %></h3>
     </div>
-    <div class="one-half column u-align-right u-valign">
-    <%= link_to('Reload Logs', user_refresh_path(@user_id), class: 'button') %>
+    <div class="col-md-6 text-right u-valign">
+    <%= link_to('Reload Logs', user_refresh_path(@user_id), class: 'btn btn-info btn-lg') %>
     </div>
   </div>
-
-  <%= link_to('View Reports', '', class: 'button button-primary') %>
-  <%= link_to('View Characters', user_players_path(@user_id), class: 'button') %>
+  <%= link_to('View Reports', '', class: 'btn btn-primary') %>
+  <%= link_to('View Characters', user_players_path(@user_id), class: 'btn btn-default') %>
+  
   <br /><br />
 
-  <table class="u-full-width">
+  <table class="table table-hover">
     <thead>
       <tr>
         <th>Name</th>
@@ -24,7 +25,7 @@
     <tr>
       <td><%= report.title %></td>
       <td><%= report.started_at.strftime("%m/%d/%Y") %></td>
-      <td><%= report.imported? ? link_to('View Report', report_path(report.report_id), class: 'button button-primary') : link_to('Import', report_import_path(report.report_id), class: 'button') %></td>
+      <td><%= report.imported? ? link_to('View Report', report_path(report.report_id), class: 'btn btn-primary') : link_to('Import', report_import_path(report.report_id), class: 'btn btn-default') %></td>
     </tr>
   <% end %>
   </table>

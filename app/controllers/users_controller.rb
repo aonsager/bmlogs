@@ -3,6 +3,11 @@ class UsersController < ApplicationController
 
   def refresh
     response = HTTParty.get("https://www.warcraftlogs.com:443/v1/reports/user/#{@user_id}?api_key=#{ENV['API_KEY']}")
+    if response.has_key? 'error'
+      flash[:danger] = response['error']
+      redirect_to :back
+      return 
+    end
     reports = JSON.parse(response.body)
     reports.each do |report|
       if !Report.exists?(:report_id => report['id'])
@@ -22,7 +27,6 @@ class UsersController < ApplicationController
 
   def show
     @reports = Report.where(user_id: @user_id).order(started_at: :desc)
-    
   end
 
   private

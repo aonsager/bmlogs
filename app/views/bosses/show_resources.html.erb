@@ -1,21 +1,22 @@
+<% breadcrumb :boss, @boss_id, @boss_name, @player_id, @player_name %>
 <div class="container">
-  <h5><small><%= link_to @player_name, player_path(@player_id) %>&nbsp;&nbsp;>&nbsp;&nbsp;</small><%= "#{@boss_name}" %></h5>
+  <h3><%= "#{@boss_name}" %></h3>
 
-  <%= link_to('Key Metrics', '?tab=basic', class: 'button') %>
-  <%= link_to('Resource Management', '?tab=resources', class: 'button button-primary') %>
-  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'button') %>
+  <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-default') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-primary') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
   <br /><br />
   <section>
     <h4>Kegsmash Efficiency</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
-        <div class="five columns">
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 800 * fp.kegsmash / fp.fight_time %>%"><%= fp.kegsmash %></div>
           </div>
         </div>
-        <div class="three columns"><%= fp.kegsmash %> / <%= fp.fight_time / 8 %> (<%= 800 * fp.kegsmash / fp.fight_time %>%)</div>
+        <div class="col-md-3"><%= fp.kegsmash %> / <%= fp.fight_time / 8 %> (<%= 800 * fp.kegsmash / fp.fight_time %>%)</div>
       </div>
     <% end %>
   </section>
@@ -24,15 +25,15 @@
     <h4>Shuffle Uptime</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
-        <div class="five columns">
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= fp.shuffle / (10 * fp.fight_time) %>%">
               <%= fp.shuffle / (10 * fp.fight_time) %>%
             </div>
           </div>
         </div>
-        <div class="three columns"><%= fp.shuffle / 1000 %>s / <%= fp.fight_time %>s</div>
+        <div class="col-md-3"><%= fp.shuffle / 1000 %>s / <%= fp.fight_time %>s</div>
       </div>
     <% end %>
   </section>
@@ -41,15 +42,15 @@
     <h4>Time not Energy-Capped</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
-        <div class="five columns">
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 100*(fp.fight_time - fp.capped_time) / fp.fight_time %>%">
               <%= fp.fight_time - fp.capped_time %>s
             </div>
           </div>
         </div>
-        <div class="three columns"><%= fp.fight_time - fp.capped_time %>s / <%= fp.fight_time %>s</div>
+        <div class="col-md-3"><%= fp.fight_time - fp.capped_time %>s / <%= fp.fight_time %>s</div>
       </div>
     <% end %>
   </section>
@@ -58,15 +59,15 @@
     <h4>Stagger Purified</h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="one column"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
-        <div class="five columns">
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger %>%">
               <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger %>%
             </div>
           </div>
         </div>
-        <div class="three columns"><%= (fp.damage_to_stagger - fp.damage_from_stagger) / 1000 %>k / <%= fp.damage_to_stagger / 1000 %>k</div>
+        <div class="col-md-3"><%= (fp.damage_to_stagger - fp.damage_from_stagger) / 1000 %>k / <%= fp.damage_to_stagger / 1000 %>k</div>
       </div>
     <% end %>
   </section>
