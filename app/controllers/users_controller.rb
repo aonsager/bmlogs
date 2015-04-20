@@ -3,7 +3,8 @@ class UsersController < ApplicationController
 
   def refresh
     response = HTTParty.get("https://www.warcraftlogs.com:443/v1/reports/user/#{@user_id}?api_key=#{ENV['API_KEY']}")
-    if response.has_key? 'error'
+    case response.code
+    when 500...600
       flash[:danger] = response['error']
       redirect_to :back
       return 
@@ -33,5 +34,6 @@ class UsersController < ApplicationController
 
   def get_user
     @user_id = params[:id] || params[:user_id]
+    session[:user_id] = @user_id
   end
 end

@@ -18,6 +18,25 @@
   font-family: 'Avenir', 'Arial', 'sans-serif';
  }
 
+.navbar {
+  border-radius: 0px;
+}
+
+.breadcrumb {
+  margin: 0px;
+  padding: 15px;
+  background-color: transparent;
+  color: white;
+}
+
+.breadcrumb a {
+  color: rgb(157, 157, 157);
+}
+
+.breadcrumb .active {
+  color: white;
+}
+
 #header {
   min-height: 30px;
   width: 100%;

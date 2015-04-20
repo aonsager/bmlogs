@@ -2,13 +2,17 @@ crumb :root do
   link "Home", root_path
 end
 
-crumb :user do |user_id|
-  link user_id, user_path(user_id)
+crumb :user_report do |user_id|
+  link "#{user_id} - Reports", user_path(user_id)
+end
+
+crumb :user_chars do |user_id|
+  link "#{user_id} - Characters", user_players_path(user_id)
 end
 
 crumb :report do |report|
   link report.title, report_path(report.report_id)
-  parent :user, report.user_id
+  parent :user_report, report.user_id
 end
 
 crumb :fight do |fight, fp, report|
@@ -18,6 +22,7 @@ end
 
 crumb :player do |player_id, player_name|
   link player_name, player_path(player_id)
+  parent :user_chars, session[:user_id]
 end
 
 crumb :boss do |boss_id, boss_name, player_id, player_name|
