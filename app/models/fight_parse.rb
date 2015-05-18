@@ -97,6 +97,7 @@ class FightParse < ActiveRecord::Base
   end
 
   def drop_cooldown(type, timestamp)
+    return if @cooldowns[type][:cp].nil?
     @cooldowns[type][:cp].ended_at = timestamp
     @cooldowns[type][:cp].save
     @cooldowns[type][:active] = false
@@ -212,7 +213,11 @@ class FightParse < ActiveRecord::Base
       eb.reduced_amount = 0
       eb.ability_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
-          ability[:avg] = @damage_by_source[source_id][ability_id][:total] / @damage_by_source[source_id][ability_id][:count]
+          if @damage_by_source[source_id].has_key?(ability_id)
+            ability[:avg] = @damage_by_source[source_id][ability_id][:total] / @damage_by_source[source_id][ability_id][:count]
+          else
+            ability[:avg] = 0 #TODO get data from other parses?
+          end
           avoided_dmg = ability[:dodged] * ability[:avg]
           eb.reduced_amount += avoided_dmg
         end

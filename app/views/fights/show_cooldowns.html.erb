@@ -1,280 +1,267 @@
-<% breadcrumb :fight, @fight, @fp, @report %>
-<% max_bar = [
-    @fp.gps,
-    @fp.ebps,
-    @fp.dh_reduced / @fp.fight_time,
-    @fp.dm_reduced / @fp.fight_time,
-    @fp.zm_reduced / @fp.fight_time,
-    @fp.fb_reduced / @fp.fight_time
-  ].max
-%>
+<% breadcrumb :fight, @fight, @fps.first, @report %>
 
 <div class="container">
-  <h3><%= "#{@fight.name} (#{@fp.fight_time / 60}:#{@fp.fight_time % 60})" %></h3>
-
+  <div class="title"><%= "#{@fight.name} (#{@fps.first.fight_time / 60}:#{@fps.first.fight_time % 60})" %></div>
+  <% @fps.each_with_index do |fp, i| %>
+    <div class="player-tag p<%= i %>"><%= UserToPlayer.find_by(player_id: fp.player_id).player_name %></div>
+  <% end %>
+  <div style="clear:both"></div>
   <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-default') %>
   <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-default') %>
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-primary') %>
   <br /><br />
 
-  <section>
-    <h4>Guard Effectiveness</h4>
-    <div class="row">
-      <div class="col-md-1"><%= @fp.fight_date %></div>
-      <div class="col-md-6">
-        <div class="bar light" style="width: <%= 100 * @fp.gps / max_bar %>%">
-          <div class="bar" style="width: <%= 100 * @fp.guard_healed / (@fp.guard_absorbed + @fp.guard_healed) %>%">
-            <%= @fp.gps %>/s
+  <h4>Guard Effectiveness</h4>
+  <% @fps.each_with_index do |fp, i| %>
+    <section>
+      <div class="row">
+        <div class="col-md-7">
+          <div class="bar p<%= i %> light" style="width: <%= 100 * fp.gps / @max_bar %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed) %>%">
+              <%= fp.gps %>/s
+            </div>
           </div>
         </div>
+        <div class="col-md-3"><%= fp.guard_healed / 1000 %>k healed, <%= fp.guard_absorbed / 1000 %>k absorbed</div>
       </div>
-      <div class="col-md-3"><%= @fp.guard_healed / 1000 %>k healed, <%= @fp.guard_absorbed / 1000 %>k absorbed</div>
-    </div>
-  </section>
-
-  <section>
-    <% @fp.cooldown_parses.guard.order(id: :asc).each do |guard| %>
-      <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
-      <div class="col-md-2 text-right"><%= guard.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-      <div class="col-md-5">
-        <div class="bar light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard %>%">
-          <div class="bar" style="width: <%= 100 * guard.healed / (guard.absorbed_amount + guard.healed_amount) rescue 0 %>%"><%= (guard.absorbed_amount + guard.healed_amount) / 1000 %>k</div>
-        </div>
-      </div>
-      <div class="col-md-3"><%= guard.healed_amount / 1000 %>k healed, <%= guard.absorbed_amount / 1000 %>k absorbed</div>
-    </div>
-    <div id="g-<%= guard.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
+      <% fp.cooldown_parses.guard.order(id: :asc).each do |guard| %>
+        <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
+        <div class="col-md-2 text-right"><%= guard.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
         <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Incoming Damage</th></tr></thead>
-            <tbody>
-              <% guard.ability_hash.each do |ability_id, hash| %>
-                <tr>
-                  <td><%= hash[:name] %></td>
-                  <td><%= hash[:amount] %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    <% end %>
-  </section>
-
-  <section>
-    <h4>Elusive Brew Effectiveness</h4>
-    <div class="row">
-      <div class="col-md-1"><%= @fp.fight_date %></div>
-      <div class="col-md-6">
-          <div class="bar" style="width: <%= 100 * @fp.ebps / max_bar %>%">
-            <%= @fp.ebps %>/s
+          <div class="bar p<%= i %> light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * guard.healed / (guard.absorbed_amount + guard.healed_amount) rescue 0 %>%"><%= (guard.absorbed_amount + guard.healed_amount) / 1000 %>k</div>
           </div>
-      </div>
-      <div class="col-md-3"><%= @fp.eb_avoided / 1000 %>k avoided</div>
-    </div>
-  </section>
-
-  <section>
-    <% @fp.cooldown_parses.eb.order(id: :asc).each do |eb| %>
-      <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= eb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-        <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * eb.reduced_amount / @max_eb %>%"><%= eb.reduced_amount / 1000 %>k</div>
         </div>
-        <div class="col-md-3"><%= eb.reduced_amount %> dmg / <%= eb.time %> sec</div>
+        <div class="col-md-3"><%= guard.healed_amount / 1000 %>k healed, <%= guard.absorbed_amount / 1000 %>k absorbed</div>
       </div>
-      <div id="eb-<%= eb.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
-        <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>
-            <tbody>
-              <% eb.ability_hash.each do |source_id, source_hash| %>
-                <% source_hash[:abilities].each do |ability_id, hash| %>
+      <div id="g-<%= guard.id %>" class="row slideout">
+          <div class="col-md-2">&nbsp;</div>
+          <div class="col-md-5">
+            <table style="width: 100%">
+              <thead><tr><th>Ability</th><th>Incoming Damage</th></tr></thead>
+              <tbody>
+                <% guard.ability_hash.each do |ability_id, hash| %>
                   <tr>
                     <td><%= hash[:name] %></td>
-                    <td><%= hash[:dodged] %></td>
-                    <td><%= hash[:avg] %></td>
+                    <td><%= hash[:amount] %></td>
                   </tr>
                 <% end %>
-              <% end %>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    <% end %>
-  </section>
+      <% end %>
+    </section>
+  <% end %>
+  
 
-  <% unless @fp.cooldown_parses.dh.count == 0 %>
+  <h4>Elusive Brew Effectiveness</h4>
+  <% @fps.each_with_index do |fp, i| %>
     <section>
-      <h4>Dampen Harm Effectiveness</h4>
       <div class="row">
-        <div class="col-md-1"><%= @fp.fight_date %></div>
-        <div class="col-md-6">
-            <div class="bar" style="width: <%= 100 * (@fp.dh_reduced / @fp.fight_time) / max_bar %>%">
-              <%= @fp.dh_reduced / @fp.fight_time %>/s
+        <div class="col-md-7">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.ebps / @max_bar %>%">
+              <%= fp.ebps %>/s
             </div>
         </div>
-        <div class="col-md-3"><%= @fp.dh_reduced / 1000 %>k mitigated</div>
+        <div class="col-md-3"><%= fp.eb_avoided / 1000 %>k avoided</div>
       </div>
+      <% fp.cooldown_parses.eb.order(id: :asc).each do |eb| %>
+        <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
+          <div class="col-md-2 text-right"><%= eb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+          <div class="col-md-5">
+            <div class="bar p<%= i %>" style="width: <%= 100 * eb.reduced_amount / @max_eb %>%"><%= eb.reduced_amount / 1000 %>k</div>
+          </div>
+          <div class="col-md-3"><%= eb.reduced_amount %> dmg / <%= eb.time %> sec</div>
+        </div>
+        <div id="eb-<%= eb.id %>" class="row slideout">
+          <div class="col-md-2">&nbsp;</div>
+          <div class="col-md-5">
+            <table style="width: 100%">
+              <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>
+              <tbody>
+                <% eb.ability_hash.each do |source_id, source_hash| %>
+                  <% source_hash[:abilities].each do |ability_id, hash| %>
+                    <tr>
+                      <td><%= hash[:name] %></td>
+                      <td><%= hash[:dodged] %></td>
+                      <td><%= hash[:avg] %></td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% end %>
     </section>
-
-    <section>
-    <% @fp.cooldown_parses.dh.order(id: :asc).each do |dh| %>
-      <div class="row" onclick="$('#dh-<%= dh.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= dh.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-        <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * dh.reduced_amount / @max_dh %>%"><%= dh.reduced_amount / 1000 %>k</div>
-        </div>
-        <div class="col-md-3"><%= dh.reduced_amount %> dmg / <%= dh.time %> sec</div>
-      </div>
-      <div id="dh-<%= dh.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
-        <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
-            <tbody>
-              <% dh.ability_hash.each do |ability_id, hash| %>
-                <tr>
-                  <td><%= hash[:name] %></td>
-                  <td><%= hash[:inc_dmg] %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    <% end %>
-  </section>
   <% end %>
 
-  <% unless @fp.cooldown_parses.dm.count == 0 %>
-    <section>
-      <h4>Diffuse Magic Effectiveness</h4>
-      <div class="row">
-        <div class="col-md-1"><%= @fp.fight_date %></div>
-        <div class="col-md-6">
-            <div class="bar" style="width: <%= 100 * (@fp.dm_reduced / @fp.fight_time) / max_bar %>%">
-              <%= @fp.dm_reduced / @fp.fight_time %>/s
+  <% unless @fps.map{|fp| fp.cooldown_parses.dh.count}.max == 0 %>
+    <h4>Dampen Harm Effectiveness</h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <section>
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-6">
+              <div class="bar p<%= i %>" style="width: <%= 100 * (fp.dh_reduced / fp.fight_time) / @max_bar %>%">
+                <%= fp.dh_reduced / fp.fight_time %>/s
+              </div>
+          </div>
+          <div class="col-md-3"><%= fp.dh_reduced / 1000 %>k mitigated</div>
+        </div>
+        <% fp.cooldown_parses.dh.order(id: :asc).each do |dh| %>
+          <div class="row" onclick="$('#dh-<%= dh.id %>').slideToggle();">
+            <div class="col-md-2 text-right"><%= dh.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-5">
+              <div class="bar p<%= i %>" style="width: <%= 100 * dh.reduced_amount / @max_dh %>%"><%= dh.reduced_amount / 1000 %>k</div>
             </div>
-        </div>
-        <div class="col-md-3"><%= @fp.dm_reduced / 1000 %>k mitigated</div>
-      </div>
-    </section>
-
-    <section>
-    <% @fp.cooldown_parses.dm.order(id: :asc).each do |dm| %>
-      <div class="row" onclick="$('#dm-<%= dm.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= dm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-        <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * dm.reduced_amount / @max_dm %>%"><%= dm.reduced_amount / 1000 %>k</div>
-        </div>
-        <div class="col-md-3"><%= dm.reduced_amount %> dmg / <%= dm.time %> sec</div>
-      </div>
-      <div id="dm-<%= dm.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
-        <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
-            <tbody>
-              <% dm.ability_hash.each do |ability_id, hash| %>
-                <tr>
-                  <td><%= hash[:name] %></td>
-                  <td><%= hash[:inc_dmg] %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <div class="col-md-3"><%= dh.reduced_amount %> dmg / <%= dh.time %> sec</div>
+          </div>
+          <div id="dh-<%= dh.id %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <tbody>
+                  <% dh.ability_hash.each do |ability_id, hash| %>
+                    <tr>
+                      <td><%= hash[:name] %></td>
+                      <td><%= hash[:inc_dmg] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </section>
     <% end %>
-  </section>
   <% end %>
 
-  <% unless @fp.cooldown_parses.zm.count == 0 %>
-    <section>
-      <h4>Zen Meditation Effectiveness</h4>
-      <div class="row">
-        <div class="col-md-1"><%= @fp.fight_date %></div>
-        <div class="col-md-6">
-            <div class="bar" style="width: <%= 100 * (@fp.zm_reduced / @fp.fight_time) / max_bar %>%">
-              <%= @fp.zm_reduced / @fp.fight_time %>/s
+  <% unless @fps.map{|fp| fp.cooldown_parses.dm.count}.max == 0 %>
+    <h4>Diffuse Magic Effectiveness</h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <section>
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-6">
+              <div class="bar p<%= i %>" style="width: <%= 100 * (fp.dm_reduced / fp.fight_time) / @max_bar %>%">
+                <%= fp.dm_reduced / fp.fight_time %>/s
+              </div>
+          </div>
+          <div class="col-md-3"><%= fp.dm_reduced / 1000 %>k mitigated</div>
+        </div>
+        <% fp.cooldown_parses.dm.order(id: :asc).each do |dm| %>
+          <div class="row" onclick="$('#dm-<%= dm.id %>').slideToggle();">
+            <div class="col-md-2 text-right"><%= dm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-5">
+              <div class="bar p<%= i %>" style="width: <%= 100 * dm.reduced_amount / @max_dm %>%"><%= dm.reduced_amount / 1000 %>k</div>
             </div>
-        </div>
-        <div class="col-md-3"><%= @fp.zm_reduced / 1000 %>k mitigated</div>
-      </div>
-    </section>
-
-    <section>
-    <% @fp.cooldown_parses.zm.order(id: :asc).each do |zm| %>
-      <div class="row" onclick="$('#zm-<%= zm.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= zm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-        <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * zm.reduced_amount / @max_zm %>%"><%= zm.reduced_amount / 1000 %>k</div>
-        </div>
-        <div class="col-md-3"><%= zm.reduced_amount %> zmg / <%= zm.time %> sec</div>
-      </div>
-      <div id="zm-<%= zm.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
-        <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
-            <tbody>
-              <% zm.ability_hash.each do |ability_id, hash| %>
-                <tr>
-                  <td><%= hash[:name] %></td>
-                  <td><%= hash[:inc_dmg] %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <div class="col-md-3"><%= dm.reduced_amount %> dmg / <%= dm.time %> sec</div>
+          </div>
+          <div id="dm-<%= dm.id %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <tbody>
+                  <% dm.ability_hash.each do |ability_id, hash| %>
+                    <tr>
+                      <td><%= hash[:name] %></td>
+                      <td><%= hash[:inc_dmg] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </section>
     <% end %>
-  </section>
   <% end %>
 
-  <% unless @fp.cooldown_parses.fb.count == 0 %>
-    <section>
-      <h4>Fortifying Brew Effectiveness</h4>
-      <div class="row">
-        <div class="col-md-1"><%= @fp.fight_date %></div>
-        <div class="col-md-6">
-            <div class="bar" style="width: <%= 100 * (@fp.fb_reduced / @fp.fight_time) / max_bar %>%">
-              <%= @fp.fb_reduced / @fp.fight_time %>/s
+  <% unless @fps.map{|fp| fp.cooldown_parses.zm.count}.max == 0 %>
+    <h4>Zen Meditation Effectiveness</h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <section>
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-6">
+              <div class="bar p<%= i %>" style="width: <%= 100 * (fp.zm_reduced / fp.fight_time) / @max_bar %>%">
+                <%= fp.zm_reduced / fp.fight_time %>/s
+              </div>
+          </div>
+          <div class="col-md-3"><%= fp.zm_reduced / 1000 %>k mitigated</div>
+        </div>
+        <% fp.cooldown_parses.zm.order(id: :asc).each do |zm| %>
+          <div class="row" onclick="$('#zm-<%= zm.id %>').slideToggle();">
+            <div class="col-md-2 text-right"><%= zm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-5">
+              <div class="bar p<%= i %>" style="width: <%= 100 * zm.reduced_amount / @max_zm %>%"><%= zm.reduced_amount / 1000 %>k</div>
             </div>
-        </div>
-        <div class="col-md-3"><%= @fp.fb_reduced / 1000 %>k mitigated</div>
-      </div>
-    </section>
-
-    <section>
-    <% @fp.cooldown_parses.fb.order(id: :asc).each do |fb| %>
-      <div class="row" onclick="$('#fb-<%= fb.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= fb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
-        <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * fb.reduced_amount / @max_fb %>%"><%= fb.reduced_amount / 1000 %>k</div>
-        </div>
-        <div class="col-md-3"><%= fb.reduced_amount %> fbg / <%= fb.time %> sec</div>
-      </div>
-      <div id="fb-<%= fb.id %>" class="row slideout">
-        <div class="col-md-2">&nbsp;</div>
-        <div class="col-md-5">
-          <table style="width: 100%">
-            <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
-            <tbody>
-              <% fb.ability_hash.each do |ability_id, hash| %>
-                <tr>
-                  <td><%= hash[:name] %></td>
-                  <td><%= hash[:inc_dmg] %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <div class="col-md-3"><%= zm.reduced_amount %> dmg / <%= zm.time %> sec</div>
+          </div>
+          <div id="zm-<%= zm.id %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <tbody>
+                  <% zm.ability_hash.each do |ability_id, hash| %>
+                    <tr>
+                      <td><%= hash[:name] %></td>
+                      <td><%= hash[:inc_dmg] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </section>
     <% end %>
-  </section>
+  <% end %>
+
+  <% unless @fps.map{|fp| fp.cooldown_parses.fb.count}.max == 0 %>
+    <h4>Fortifying Brew Effectiveness</h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <section>
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-6">
+              <div class="bar p<%= i %>" style="width: <%= 100 * (fp.fb_reduced / fp.fight_time) / @max_bar %>%">
+                <%= fp.fb_reduced / fp.fight_time %>/s
+              </div>
+          </div>
+          <div class="col-md-3"><%= fp.fb_reduced / 1000 %>k mitigated</div>
+        </div>
+        <% fp.cooldown_parses.fb.order(id: :asc).each do |fb| %>
+          <div class="row" onclick="$('#fb-<%= fb.id %>').slideToggle();">
+            <div class="col-md-2 text-right"><%= fb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-5">
+              <div class="bar p<%= i %>" style="width: <%= 100 * fb.reduced_amount / @max_fb %>%"><%= fb.reduced_amount / 1000 %>k</div>
+            </div>
+            <div class="col-md-3"><%= fb.reduced_amount %> fbg / <%= fb.time %> sec</div>
+          </div>
+          <div id="fb-<%= fb.id %>" class="row slideout">
+            <div class="col-md-2">&nbsp;</div>
+            <div class="col-md-5">
+              <table style="width: 100%">
+                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <tbody>
+                  <% fb.ability_hash.each do |ability_id, hash| %>
+                    <tr>
+                      <td><%= hash[:name] %></td>
+                      <td><%= hash[:inc_dmg] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
   <% end %>
 </div>

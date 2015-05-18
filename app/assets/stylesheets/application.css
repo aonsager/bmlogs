@@ -59,6 +59,30 @@ h1, h2, h3, h4, h5 {
   margin-bottom: 20px;
 }
 
+.title {
+  font-size: 24px;
+  line-height: 26px;
+  font-weight: 500;
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.player-tag {
+  float: left;
+  line-height: 22px;
+  padding: 2px 20px 2px 20px;
+  margin-right: 10px;
+  margin-bottom: 15px;
+  border-radius: 3px;
+  color: white;
+  background-color: rgb(30, 180, 123);
+}
+
+.player-tag.p1 {
+  background-color: rgb(251, 116, 183);
+}
+
 .row {
   margin-top: 10px;
 }
@@ -93,9 +117,17 @@ a.button-primary[disabled] {
   overflow: show;
 }
 
+.bar.p1 {
+  background: rgb(251, 116, 183);
+}
+
 .bar.light {
   background: rgb(146, 199, 191);
   padding: 0px;
+}
+
+.bar.light.p1 {
+  background: rgb(250, 174, 207);
 }
 
 .bar.white {
