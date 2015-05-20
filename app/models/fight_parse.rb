@@ -104,8 +104,9 @@ class FightParse < ActiveRecord::Base
   end
 
   def guard(ability_id, name, amount)
-    @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, amount: 0}
+    @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
     @cooldowns['guard'][:cp].ability_hash[ability_id][:amount] += amount
+    @cooldowns['guard'][:cp].ability_hash[ability_id][:casts] += 1
     @cooldowns['guard'][:cp].absorbed_amount += amount
     self.self_absorb(amount)
   end
@@ -162,28 +163,34 @@ class FightParse < ActiveRecord::Base
 
     # work our way back up the mitigation stack to see how much each ability mitigated
     if @cooldowns['zm'][:active]
-      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
       @cooldowns['zm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
+      @cooldowns['zm'][:cp].ability_hash[ability_id][:casts] += 1
       @cooldowns['zm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['zm'][:cp].reduced_amount
     end
     if @cooldowns['fb'][:active]
-      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
       @cooldowns['fb'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 5 / 3
+      @cooldowns['fb'][:cp].ability_hash[ability_id][:casts] += 1
       @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) * 2 / 3 # 40% mitigation including increased stagger
       amount += @cooldowns['fb'][:cp].reduced_amount
     end
     if @cooldowns['dm'][:active] && ability_type != 1 # record magic damage reduced by DM
-      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
+      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
       @cooldowns['dm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
+      @cooldowns['dm'][:cp].ability_hash[ability_id][:casts] += 1
       @cooldowns['dm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['dm'][:cp].reduced_amount
     end
-    if @cooldowns['dh'][:active] && amount >= amount * 0.15
-      @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {name: name, inc_dmg: 0}
-      @cooldowns['dh'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 2
-      @cooldowns['dh'][:cp].reduced_amount += (amount + absorbed) # 50% reduction
-      amount += @cooldowns['dh'][:cp].reduced_amount
+    if @cooldowns['dh'][:active] && !max_hp.nil? # friendly damage doesn't record maxHP
+      if amount >= max_hp * 0.15 # definitely triggered
+        @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
+        @cooldowns['dh'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 2
+        @cooldowns['dh'][:cp].ability_hash[ability_id][:casts] += 1
+        @cooldowns['dh'][:cp].reduced_amount += (amount + absorbed) # 50% reduction
+        amount += @cooldowns['dh'][:cp].reduced_amount
+      end
     end
 
     # record the attack's initial damage

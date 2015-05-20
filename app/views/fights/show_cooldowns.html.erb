@@ -38,11 +38,12 @@
           <div class="col-md-2">&nbsp;</div>
           <div class="col-md-5">
             <table style="width: 100%">
-              <thead><tr><th>Ability</th><th>Incoming Damage</th></tr></thead>
+              <thead><tr><th>Ability</th><th>Casts</th><th>Incoming Damage</th></tr></thead>
               <tbody>
                 <% guard.ability_hash.each do |ability_id, hash| %>
                   <tr>
                     <td><%= hash[:name] %></td>
+                    <td><%= hash[:casts] %></td>
                     <td><%= hash[:amount] %></td>
                   </tr>
                 <% end %>
@@ -78,7 +79,7 @@
           <div class="col-md-2">&nbsp;</div>
           <div class="col-md-5">
             <table style="width: 100%">
-              <thead><tr><th>Ability</th><th>Count</th><th>Avg. dmg.</th></tr></thead>
+              <thead><tr><th>Ability</th><th>Dodged Count</th><th>Avg. dmg.</th></tr></thead>
               <tbody>
                 <% eb.ability_hash.each do |source_id, source_hash| %>
                   <% source_hash[:abilities].each do |ability_id, hash| %>
@@ -122,11 +123,12 @@
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-5">
               <table style="width: 100%">
-                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <thead><tr><th>Ability</th><th>Casts</th><th>Incoming damage</th></tr></thead>
                 <tbody>
                   <% dh.ability_hash.each do |ability_id, hash| %>
                     <tr>
                       <td><%= hash[:name] %></td>
+                      <td><%= hash[:casts] %></td>
                       <td><%= hash[:inc_dmg] %></td>
                     </tr>
                   <% end %>
@@ -164,11 +166,12 @@
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-5">
               <table style="width: 100%">
-                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <thead><tr><th>Ability</th><th>Casts</th><th>Incoming damage</th></tr></thead>
                 <tbody>
                   <% dm.ability_hash.each do |ability_id, hash| %>
                     <tr>
                       <td><%= hash[:name] %></td>
+                      <td><%= hash[:casts] %></td>
                       <td><%= hash[:inc_dmg] %></td>
                     </tr>
                   <% end %>
@@ -206,11 +209,12 @@
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-5">
               <table style="width: 100%">
-                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <thead><tr><th>Ability</th><th>Casts</th><th>Incoming damage</th></tr></thead>
                 <tbody>
                   <% zm.ability_hash.each do |ability_id, hash| %>
                     <tr>
                       <td><%= hash[:name] %></td>
+                      <td><%= hash[:casts] %></td>
                       <td><%= hash[:inc_dmg] %></td>
                     </tr>
                   <% end %>
@@ -242,17 +246,18 @@
             <div class="col-md-5">
               <div class="bar p<%= i %>" style="width: <%= 100 * fb.reduced_amount / @max_fb %>%"><%= fb.reduced_amount / 1000 %>k</div>
             </div>
-            <div class="col-md-3"><%= fb.reduced_amount %> fbg / <%= fb.time %> sec</div>
+            <div class="col-md-3"><%= fb.reduced_amount %> dmg / <%= fb.time %> sec</div>
           </div>
           <div id="fb-<%= fb.id %>" class="row slideout">
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-5">
               <table style="width: 100%">
-                <thead><tr><th>Ability</th><th>Incoming damage</th></tr></thead>
+                <thead><tr><th>Ability</th><th>Casts</th><th>Incoming damage</th></tr></thead>
                 <tbody>
                   <% fb.ability_hash.each do |ability_id, hash| %>
                     <tr>
                       <td><%= hash[:name] %></td>
+                      <td><%= hash[:casts] %></td>
                       <td><%= hash[:inc_dmg] %></td>
                     </tr>
                   <% end %>
