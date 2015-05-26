@@ -107,7 +107,7 @@ class Parser
           when 'absorbed'
             if event['targetID'] == event['sourceID'] # self-absorb
               if event['ability']['guid'] == 115069 # stagger
-                fp.stagger(event['timestamp'], event['amount'])
+                fp.stagger(event['timestamp'], event['amount'], event['extraAbility']['guid'])
               elsif event['ability']['guid'] == 115295 # guard
                 fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'])
               else # just in case
@@ -123,7 +123,7 @@ class Parser
               fp.external_heal(event['amount'])
             end
           when 'damage'
-            fp.record_damage(event['timestamp'], event['sourceID'], event['ability']['guid'], event['ability']['name'], event['ability']['type'], event['amount'], event['absorbed'], event['maxHitPoints'])
+            fp.record_damage(event['timestamp'], event['sourceID'], event['sourceIsFriendly'], event['ability']['guid'], event['ability']['name'], event['ability']['type'], event['amount'], event['absorbed'], event['maxHitPoints'], event['tick'])
             if event['hitType'] == 7 # dodge
               fp.dodge(event['sourceID'], event['ability']['guid'], event['ability']['name'])
             end

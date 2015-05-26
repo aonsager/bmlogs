@@ -140,6 +140,10 @@ a.button-primary[disabled] {
   margin: -1px;
 }
 
+.grey {
+  color: #888888;
+}
+
 section {
   margin-bottom: 50px;
 }

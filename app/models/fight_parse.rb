@@ -15,12 +15,20 @@ class FightParse < ActiveRecord::Base
       'dh' => {active: false, cp: nil},
       'fb' => {active: false, cp: nil},
     }
-
+    @cooldown_buffer = {
+      'guard' => 0,
+      'eb' => 0,
+      'zm' => 0,
+      'dm' => 0,
+      'dh' => 0,
+      'fb' => 0,
+    }
     @serenity = false
     @shuffling = false
 
     @total_eb = 0
     @damage_by_source = {}
+    @default_max_hp = 0
   end
 
   # getters
@@ -99,25 +107,45 @@ class FightParse < ActiveRecord::Base
 
   def drop_cooldown(type, timestamp)
     return if @cooldowns[type][:cp].nil?
-    calculate_dh if type == 'dh' # figure out which attacks had reduced damage
-    @cooldowns[type][:cp].ended_at = timestamp
+    if @cooldown_buffer[type] == 0 # allow for a buffer time, in case a buff drops before corresponding damage is dealt
+      @cooldown_buffer[type] = timestamp
+      return
+    elsif (@cooldown_buffer[type] - timestamp).abs <= 30
+      return  # don't drop the cooldown yet, because we're still in the buffer time
+    end
+    puts "--- dampen harm dropped at #{timestamp} ---"
+    # buffer time has expired
+    calculate_dh if type == 'dh' # figure out which attacks may have triggered DH
+    @cooldowns[type][:cp].ended_at = @cooldown_buffer[type]
     @cooldowns[type][:cp].save
     @cooldowns[type][:active] = false
+    @cooldown_buffer[type] = 0
   end
 
   def calculate_dh
+    puts "======================="
+    puts "======================="
+    puts @cooldowns['dh'][:attacks]
     @cooldowns['dh'][:cp].ability_hash = {}
-    @cooldowns['dh'][:attacks].reject {|attack| attack[:ability_id] == 0 || attack[:max_hp] == 0}
-    @cooldowns['dh'][:attacks].sort! {|a, b| (a[:amount] - a[:staggered]).to_f / a[:max_hp] <=> (b[:amount] - b[:staggered]).to_f / b[:max_hp]}
+    @cooldowns['dh'][:attacks].reject! {|attack| attack[:ability_id] == 0}
+    # fill missing max_hp values, because it's not saved if the attack is fully absorbed(?)
+    @cooldowns['dh'][:attacks].each {|attack| attack[:max_hp] = @default_max_hp if attack[:max_hp].nil? }
+    # sort by damage % of max hp
+    @cooldowns['dh'][:attacks].sort! {|a, b| (b[:amount] - b[:staggered]).to_f / b[:max_hp] <=> (a[:amount] - a[:staggered]).to_f / a[:max_hp]}
+    # grab the highest 3 attacks and see if they may have triggered DH
+    puts "====== top 3 ======"
     0.upto(2){ |i|
       a = @cooldowns['dh'][:attacks][i]
+      break if a.nil?
       percent = (a[:amount] - a[:staggered]).to_f / a[:max_hp]
-      if percent >= 0.15 # definitely reduced
-        @cooldowns['dh'][:cp].ability_hash[a[:ability_id]] = {name: a[:name], amount: a[:amount], percent: percent, sure: 'yes'}
-        @cooldowns['dh'][:cp].reduced_amount += a[:amount]
-      elsif percent >= 0.075 # might have reduced
-        @cooldowns['dh'][:cp].ability_hash[a[:ability_id]] = {name: a[:name], amount: a[:amount], percent: percent, sure: 'maybe'}
-        @cooldowns['dh'][:cp].reduced_amount += a[:amount]
+      puts a, percent
+      if percent >= 0.075 # might have reduced
+        @cooldowns['dh'][:cp].ability_hash[i] = {ability_id: a[:ability_id], name: a[:name], amount: a[:amount] - a[:staggered], staggered: a[:staggered], percent: percent, sure: 'maybe', max_hp: a[:max_hp]}
+        if percent >= 0.15 || @cooldown_buffer['dh'] - @cooldowns['dh'][:cp].started_at < 45000 # definitely was reduced
+          puts @cooldown_buffer['dh'], @cooldowns['dh'][:cp].started_at
+          @cooldowns['dh'][:cp].ability_hash[i][:sure] = 'yes'
+        end 
+        @cooldowns['dh'][:cp].reduced_amount += (a[:amount] - a[:staggered])
       end
     }
   end
@@ -141,13 +169,13 @@ class FightParse < ActiveRecord::Base
     self.shuffle += timestamp
   end
 
-  def stagger(timestamp, amount)
+  def stagger(timestamp, amount, ability_id)
     self.damage_to_stagger += amount
     if @cooldowns['dh'][:active] # negate stagger from our recorded damage of this attack
-      if !@cooldowns['dh'][:attacks].last.nil? && (@cooldowns['dh'][:attacks].last[:timestamp] - timestamp).abs <= 10
+      if !@cooldowns['dh'][:attacks].last.nil? && (@cooldowns['dh'][:attacks].last[:timestamp] - timestamp).abs <= 50 && @cooldowns['dh'][:attacks].last[:ability_id] == ability_id && @cooldowns['dh'][:attacks].last[:staggered] == 0
         @cooldowns['dh'][:attacks].last[:staggered] = amount
       else
-        @cooldowns['dh'][:attacks] << {timestamp: timestamp, ability_id: '', name: '', amount: 0, staggered: amount, max_hp: 0}
+        @cooldowns['dh'][:attacks] << {timestamp: timestamp, ability_id: ability_id, name: '', amount: 0, staggered: amount, max_hp: nil}
       end
     end
   end
@@ -170,7 +198,7 @@ class FightParse < ActiveRecord::Base
 
   def self_heal(amount)
     self.self_healing += amount
-    @current_guard.healed_amount += amount if @guarding
+    @cooldowns['guard'][:cp].healed_amount += amount if @cooldowns['guard'][:active]
   end
 
   def external_absorb(amount)
@@ -181,49 +209,49 @@ class FightParse < ActiveRecord::Base
     self.external_healing += amount
   end
 
-  def record_damage(timestamp, source_id, ability_id, name, ability_type, amount, absorbed, max_hp)
+  def record_damage(timestamp, source_id, source_friendly, ability_id, name, ability_type, amount, absorbed, max_hp, tick)
     source_id ||= -1
     self.damage_taken += amount
     return if (amount + absorbed) == 0
     return if ability_id == 124255 # ignore damage from stagger
+    return if source_friendly
+    @default_max_hp = max_hp if !max_hp.nil? && @default_max_hp == 0
+
+    # check if cooldowns need to drop
+    @cooldown_buffer.each do |type, buffer|
+      drop_cooldown(type, timestamp) if buffer != 0
+    end
 
     # work our way back up the mitigation stack to see how much each ability mitigated
     if @cooldowns['zm'][:active]
-      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
-      @cooldowns['zm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
+      @cooldowns['zm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
+      @cooldowns['zm'][:cp].ability_hash[ability_id][:amount] += (amount + absorbed) * 9
       @cooldowns['zm'][:cp].ability_hash[ability_id][:casts] += 1
       @cooldowns['zm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['zm'][:cp].reduced_amount
     end
     if @cooldowns['fb'][:active]
-      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
-      @cooldowns['fb'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 5 / 3
+      @cooldowns['fb'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
+      @cooldowns['fb'][:cp].ability_hash[ability_id][:amount] += (amount + absorbed) * 1 / 4
       @cooldowns['fb'][:cp].ability_hash[ability_id][:casts] += 1
-      @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) * 2 / 3 # 40% mitigation including increased stagger
+      @cooldowns['fb'][:cp].reduced_amount += (amount + absorbed) * 1 / 4 # 20% mitigation, ignoring stagger
       amount += @cooldowns['fb'][:cp].reduced_amount
     end
     if @cooldowns['dm'][:active] && ability_type != 1 # record magic damage reduced by DM
-      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, inc_dmg: 0}
-      @cooldowns['dm'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed) * 10
+      @cooldowns['dm'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
+      @cooldowns['dm'][:cp].ability_hash[ability_id][:amount] += (amount + absorbed) * 9
       @cooldowns['dm'][:cp].ability_hash[ability_id][:casts] += 1
       @cooldowns['dm'][:cp].reduced_amount += (amount + absorbed) * 9 # 90% reduction
       amount += @cooldowns['dm'][:cp].reduced_amount
     end
-    if @cooldowns['dh'][:active] && !max_hp.nil? # friendly damage doesn't record maxHP
-      # if amount >= max_hp * 0.15 # definitely triggered
-      if !@cooldowns['dh'][:attacks].last.nil? && (@cooldowns['dh'][:attacks].last[:timestamp] - timestamp).abs <= 10
+    if @cooldowns['dh'][:active] && !tick # ignore ticks for DH
+      if !@cooldowns['dh'][:attacks].last.nil? && (@cooldowns['dh'][:attacks].last[:timestamp] - timestamp).abs <= 50 && @cooldowns['dh'][:attacks].last[:ability_id] == ability_id && @cooldowns['dh'][:attacks].last[:staggered] > 0
+        @cooldowns['dh'][:attacks].last[:name] = name
         @cooldowns['dh'][:attacks].last[:amount] = amount + absorbed
         @cooldowns['dh'][:attacks].last[:max_hp] = max_hp
-        @cooldowns['dh'][:attacks].last[:ability_id] = ability_id
-        @cooldowns['dh'][:attacks].last[:name] = name
       else
         @cooldowns['dh'][:attacks] << {timestamp: timestamp, ability_id: ability_id, name: name, amount: (amount + absorbed), staggered: 0, max_hp: max_hp}
       end
-      # @cooldowns['dh'][:cp].ability_hash[ability_id] ||= {id: ability_id, name: name, inc_dmg: 0, max_hp: max_hp, staggered: 0}
-      # @cooldowns['dh'][:cp].ability_hash[ability_id][:inc_dmg] += (amount + absorbed)
-        # @cooldowns['dh'][:cp].reduced_amount += (amount + absorbed) # 50% reduction
-        # amount += @cooldowns['dh'][:cp].reduced_amount
-      # end
     end
 
     # record the attack's initial damage
@@ -231,6 +259,7 @@ class FightParse < ActiveRecord::Base
     ability = @damage_by_source[source_id][ability_id] ||= {name: name, count: 0, total: 0}
     ability[:total] += amount + absorbed
     ability[:count] += 1
+
   end
 
   def dodge(source_id, ability_id, ability_name)
@@ -244,8 +273,8 @@ class FightParse < ActiveRecord::Base
   def clean
     # end cooldowns
     self.drop_shuffle(self.ended_at) if @shuffling
-    self.drop_guard(self.ended_at) if @guarding
-    self.drop_eb(self.ended_at) if @ebing
+    self.drop_guard(self.ended_at) if @cooldowns['guard'][:active]
+    self.drop_eb(self.ended_at) if @cooldowns['eb'][:active]
 
     # calculate total damage avoided with Eb
     self.cooldown_parses.eb.each do |eb|
