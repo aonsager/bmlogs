@@ -123,13 +123,13 @@
             <div class="col-md-2">&nbsp;</div>
             <div class="col-md-5">
               <table style="width: 100%">
-                <thead><tr><th>Ability</th><th>Casts</th><th>Incoming damage</th></tr></thead>
+                <thead><tr><th>Ability</th><th>Incoming damage</th><th>% Max HP</th></tr></thead>
                 <tbody>
                   <% dh.ability_hash.each do |ability_id, hash| %>
                     <tr>
                       <td><%= hash[:name] %></td>
-                      <td><%= hash[:casts] %></td>
-                      <td><%= hash[:inc_dmg] %></td>
+                      <td><%= hash[:amount] %></td>
+                      <td><%= (hash[:percent] * 200).round(2) %></td>
                     </tr>
                   <% end %>
                 </tbody>
