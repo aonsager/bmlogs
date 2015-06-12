@@ -19,7 +19,7 @@
             <div class="bar p<%= i %>" style="width: <%= 100 * fp.player_damage_done / (fp.player_damage_done + fp.pet_damage_done) %>%"><%= fp.dps %>/s</div>
           </div>
         </div>
-        <div class="col-md-6"><%= fp.player_damage_done / 1000 %>k total damage (<%= fp.pet_damage_done / 1000 %>k pet)</div>
+        <div class="col-md-6"><%= (fp.player_damage_done + fp.pet_damage_done) / 1000 %>k total damage (<%= fp.pet_damage_done / 1000 %>k pet)</div>
       </div>
     <% end %>
   </section>

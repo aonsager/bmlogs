@@ -100,20 +100,22 @@ class FightParse < ActiveRecord::Base
   end
 
   def gain_cooldown(type, timestamp)
+    drop_cooldown(type, timestamp, true) if @cooldowns[type][:active]
     @cooldowns[type][:active] = true
     @cooldowns[type][:cp] = CooldownParse.new(fight_parse_id: self.id, cooldown_type: type, started_at: timestamp)
     @cooldowns[type][:attacks] = [] if type == 'dh' # to record damage and negate stagger
   end
 
-  def drop_cooldown(type, timestamp)
+  def drop_cooldown(type, timestamp, force = false)
     return if @cooldowns[type][:cp].nil?
-    if @cooldown_buffer[type] == 0 # allow for a buffer time, in case a buff drops before corresponding damage is dealt
-      @cooldown_buffer[type] = timestamp
-      return
-    elsif (@cooldown_buffer[type] - timestamp).abs <= 30
-      return  # don't drop the cooldown yet, because we're still in the buffer time
+    unless force
+      if @cooldown_buffer[type] == 0 # allow for a buffer time, in case a buff is dropped before damage is recorded
+        @cooldown_buffer[type] = timestamp
+        return
+      elsif (@cooldown_buffer[type] - timestamp).abs <= 30 # 30ms is probably enough of a buffer
+        return  # don't drop the cooldown yet, because we're still in the buffer time
+      end
     end
-    puts "--- dampen harm dropped at #{timestamp} ---"
     # buffer time has expired
     calculate_dh if type == 'dh' # figure out which attacks may have triggered DH
     @cooldowns[type][:cp].ended_at = @cooldown_buffer[type]
@@ -123,9 +125,6 @@ class FightParse < ActiveRecord::Base
   end
 
   def calculate_dh
-    puts "======================="
-    puts "======================="
-    puts @cooldowns['dh'][:attacks]
     @cooldowns['dh'][:cp].ability_hash = {}
     @cooldowns['dh'][:attacks].reject! {|attack| attack[:ability_id] == 0}
     # fill missing max_hp values, because it's not saved if the attack is fully absorbed(?)
@@ -133,16 +132,13 @@ class FightParse < ActiveRecord::Base
     # sort by damage % of max hp
     @cooldowns['dh'][:attacks].sort! {|a, b| (b[:amount] - b[:staggered]).to_f / b[:max_hp] <=> (a[:amount] - a[:staggered]).to_f / a[:max_hp]}
     # grab the highest 3 attacks and see if they may have triggered DH
-    puts "====== top 3 ======"
     0.upto(2){ |i|
       a = @cooldowns['dh'][:attacks][i]
       break if a.nil?
       percent = (a[:amount] - a[:staggered]).to_f / a[:max_hp]
-      puts a, percent
       if percent >= 0.075 # might have reduced
         @cooldowns['dh'][:cp].ability_hash[i] = {ability_id: a[:ability_id], name: a[:name], amount: a[:amount] - a[:staggered], staggered: a[:staggered], percent: percent, sure: 'maybe', max_hp: a[:max_hp]}
         if percent >= 0.15 || @cooldown_buffer['dh'] - @cooldowns['dh'][:cp].started_at < 45000 # definitely was reduced
-          puts @cooldown_buffer['dh'], @cooldowns['dh'][:cp].started_at
           @cooldowns['dh'][:cp].ability_hash[i][:sure] = 'yes'
         end 
         @cooldowns['dh'][:cp].reduced_amount += (a[:amount] - a[:staggered])
@@ -273,8 +269,9 @@ class FightParse < ActiveRecord::Base
   def clean
     # end cooldowns
     self.drop_shuffle(self.ended_at) if @shuffling
-    self.drop_cooldown('guard', self.ended_at) if @cooldowns['guard'][:active]
-    self.drop_cooldown('eb', self.ended_at) if @cooldowns['eb'][:active]
+    @cooldowns.each do |type, hash|
+      drop_cooldown(type, self.ended_at, true) if hash[:active]
+    end
 
     # calculate total damage avoided with Eb
     self.cooldown_parses.eb.each do |eb|
@@ -302,25 +299,6 @@ class FightParse < ActiveRecord::Base
     self.fb_reduced = self.cooldown_parses.fb.sum(:reduced_amount)
     self.fight.status = :done
     self.fight.save
-  end
-
-  def print
-    puts "Kegsmash: #{self.kegsmash}/#{fight_time/8} (#{100*self.kegsmash/(fight_time/8)}%)"
-    puts "Tigerpalm: #{self.tigerpalm}"
-    puts "Shuffle uptime: #{self.shuffle / (10 * fight_time)}%"
-    puts "Time spent energy capped: #{self.capped_time} seconds"
-    puts "Percent Stagger Purified: #{100 * (self.damage_to_stagger - self.damage_from_stagger) / self.damage_to_stagger}% (#{self.damage_from_stagger} damage taken)"
-    puts "Total damage: #{self.player_damage_done} Player, #{self.pet_damage_done} Pet (#{(self.player_damage_done + self.pet_damage_done) / fight_time} DPS)"
-    puts "Damage taken: #{self.damage_taken} (#{self.damage_taken / fight_time} DTPS)"
-    puts "Self healing: #{self.self_healing} Healed, #{self.self_absorbing} Absorbed"
-    puts "Self healing per second: #{(self.self_healing + self.self_absorbing) / fight_time}"
-    puts "External healing: #{self.external_healing} Healed, #{self.external_absorbing} Absorbed"
-    puts "External healing per second: #{(self.external_healing + self.external_absorbing) / fight_time}"
-    puts ""
-    puts "Total Guard: #{GuardParse.total_guard(self.id)} (#{GuardParse.total_guard(self.id) / fight_time} HPS)"
-    puts ""
-    puts "Total Damage avoided through Elusive Brew: #{@total_eb} (#{@total_eb / fight_time} HPS)"
-    puts ""
   end
 
 end
