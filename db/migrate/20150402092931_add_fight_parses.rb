@@ -5,6 +5,7 @@ class AddFightParses < ActiveRecord::Migration
       t.text     :user_id, null: false
       t.integer  :player_id, null: false
       t.integer  :boss_id
+      t.integer  :difficulty
       t.integer  :kegsmash, default: 0
       t.integer  :tigerpalm, default: 0
       t.integer  :shuffle, default: 0

@@ -2,10 +2,11 @@ class BossesController < ApplicationController
   def show
     @player_id = params[:player_id]
     @player_name = UserToPlayer.where(player_id: @player_id).first.player_name
-    @boss_id = params[:id]
+    @boss_id = params[:boss_id].to_i
+    @difficulty = params[:difficulty].to_i
     @boss_name = Boss.find(@boss_id).name
 
-    @fights = FightParse.where(player_id: @player_id, boss_id: @boss_id)
+    @fights = FightParse.where(player_id: @player_id, boss_id: @boss_id, difficulty: @difficulty)
 
     case params[:tab]
     when 'resources'

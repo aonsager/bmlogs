@@ -273,8 +273,8 @@ class FightParse < ActiveRecord::Base
   def clean
     # end cooldowns
     self.drop_shuffle(self.ended_at) if @shuffling
-    self.drop_guard(self.ended_at) if @cooldowns['guard'][:active]
-    self.drop_eb(self.ended_at) if @cooldowns['eb'][:active]
+    self.drop_cooldown('guard', self.ended_at) if @cooldowns['guard'][:active]
+    self.drop_cooldown('eb', self.ended_at) if @cooldowns['eb'][:active]
 
     # calculate total damage avoided with Eb
     self.cooldown_parses.eb.each do |eb|

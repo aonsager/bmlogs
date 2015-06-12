@@ -21,7 +21,9 @@ Rails.application.routes.draw do
   resources :fights, only: [:show]
 
   resources :players, only: [:show] do
-    resources :bosses, only: [:show]
+    resources :bosses, only: [] do
+      get '/:difficulty' => 'bosses#show', as: :show
+    end
   end
 
   resources :reports, only: [:show] do

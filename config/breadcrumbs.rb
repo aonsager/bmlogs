@@ -16,7 +16,7 @@ crumb :report do |report|
 end
 
 crumb :fight do |fight, fp, report|
-  link "#{fight.name} (#{fp.fight_time / 60}:#{fp.fight_time % 60})", fight_path(fight.id)
+  link "#{fight.name} (#{DifficultyType.label(fp.difficulty)}) (#{fp.fight_time / 60}:#{fp.fight_time % 60})", fight_path(fight.id)
   parent :report, report
 end
 
@@ -25,8 +25,8 @@ crumb :player do |player_id, player_name|
   parent :user_chars, session[:user_id]
 end
 
-crumb :boss do |boss_id, boss_name, player_id, player_name|
-  link boss_name, player_boss_path(player_id, boss_id)
+crumb :boss do |boss_id, boss_name, difficulty, player_id, player_name|
+  link "#{boss_name} (#{DifficultyType.label(difficulty)})", player_boss_show_path(player_id, boss_id, difficulty)
   parent :player, player_id, player_name
 end
 

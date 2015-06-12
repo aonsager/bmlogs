@@ -1,6 +1,6 @@
-<% breadcrumb :boss, @boss_id, @boss_name, @player_id, @player_name %>
+<% breadcrumb :boss, @boss_id, @boss_name, @difficulty, @player_id, @player_name %>
 <div class="container">
-  <h3><%= "#{@boss_name}" %></h3>
+  <h3><%= "#{@boss_name} (#{DifficultyType.label(@difficulty)}) - Comparison" %></h3>
 
   <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-primary') %>
   <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-default') %>

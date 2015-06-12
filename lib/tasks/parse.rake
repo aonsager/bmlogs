@@ -56,11 +56,11 @@ namespace :log do
           when 'removebuff'
             case event['ability']['guid'] 
             when 115295 # drop guard
-              fp.drop_guard(event['timestamp'])
+              fp.drop_cooldown('guard', event['timestamp'])
             when 115307 # drop shuffle
               fp.drop_shuffle(event['timestamp'])
             when 115308 # drop elusive brew
-              fp.drop_eb(event['timestamp'])
+              fp.drop_cooldown('eb', event['timestamp'])
             when 152173 # drop serenity
               fp.serenity = false
             end
