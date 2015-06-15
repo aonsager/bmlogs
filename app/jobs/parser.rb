@@ -21,7 +21,7 @@ class Parser
     user_id = Report.where(report_id: fight.report_id).first.user_id
 
     composition.each do |player|
-      next if player['spec'].nil? # not sure why sometimes this data doesn't come
+      next if player['specs'].size == 0 # not sure why sometimes this data doesn't come
       bm_ids[player['id']] = {guid: player['guid'], name: player['name']} if player['specs'][0]['spec'] == "Brewmaster"
     end
 
@@ -140,7 +140,6 @@ class Parser
         events = obj['events']
       end
     end
-
     bm_ids.each do |bm_id, guid|
       fight_parses[bm_id].clean
       fight_parses[bm_id].save
