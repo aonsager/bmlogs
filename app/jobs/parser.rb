@@ -21,6 +21,7 @@ class Parser
     user_id = Report.where(report_id: fight.report_id).first.user_id
 
     composition.each do |player|
+      next if player['spec'].nil? # not sure why sometimes this data doesn't come
       bm_ids[player['id']] = {guid: player['guid'], name: player['name']} if player['specs'][0]['spec'] == "Brewmaster"
     end
 
@@ -109,7 +110,7 @@ class Parser
               if event['ability']['guid'] == 115069 # stagger
                 fp.stagger(event['timestamp'], event['amount'], event['extraAbility']['guid'])
               elsif event['ability']['guid'] == 115295 # guard
-                fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'])
+                fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'], event['timestamp'])
               else # just in case
                 fp.self_absorb(event['amount'])
               end

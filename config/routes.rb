@@ -6,7 +6,7 @@ Rails.application.routes.draw do
 
   # You can have the root of your site routed with "root"
   root 'home#index'
-
+  get 'logout' => 'home#logout'
   # get 'logs/:user' => 'logs#show'
   # get 'logs/:user/refresh' => 'logs#refresh'
   # get 'logs/import/:log_id' => 'logs#import', as: :import

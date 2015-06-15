@@ -29,6 +29,7 @@ class FightParse < ActiveRecord::Base
     @total_eb = 0
     @damage_by_source = {}
     @default_max_hp = 0
+    self.shuffle = 0
   end
 
   # getters
@@ -146,7 +147,8 @@ class FightParse < ActiveRecord::Base
     }
   end
 
-  def guard(ability_id, name, amount)
+  def guard(ability_id, name, amount, timestamp)
+    gain_cooldown('guard', timestamp) if !@cooldowns['guard'][:active]
     @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
     @cooldowns['guard'][:cp].ability_hash[ability_id][:amount] += amount
     @cooldowns['guard'][:cp].ability_hash[ability_id][:casts] += 1
@@ -160,7 +162,7 @@ class FightParse < ActiveRecord::Base
   end
 
   def drop_shuffle(timestamp)
-    self.shuffle -= @started_at if !@shuffling # had buff when fight started
+    self.shuffle -= self.started_at if !@shuffling # had buff when fight started
     @shuffling = false
     self.shuffle += timestamp
   end
