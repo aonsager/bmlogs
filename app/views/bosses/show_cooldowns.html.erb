@@ -12,7 +12,7 @@
       <div class="row">
       <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
       <div class="col-md-5">
-        <div class="bar light" style="width: <%= 100 * fp.gps / @max_gps %>%">
+        <div class="bar light" style="width: <%= 100 * fp.gps / @max_gps rescue 0 %>%">
           <div class="bar" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed) %>%"><%= fp.gps %>/s</div>
         </div>
       </div>
@@ -27,7 +27,7 @@
       <div class="row">
       <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
       <div class="col-md-5">
-          <div class="bar" style="width: <%= 100 * fp.ebps / @max_ebps %>%">
+          <div class="bar" style="width: <%= 100 * fp.ebps / @max_ebps rescue 0 %>%">
             <%= fp.ebps %>/s
           </div>
       </div>
@@ -43,7 +43,7 @@
         <div class="row">
         <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="col-md-5">
-            <div class="bar" style="width: <%= 100 * (fp.dh_reduced / fp.fight_time) / @max_dhps %>%">
+            <div class="bar" style="width: <%= 100 * (fp.dh_reduced / fp.fight_time) / @max_dhps rescue 0  %>%">
               <%= fp.dh_reduced / fp.fight_time %>/s
             </div>
         </div>
@@ -59,7 +59,7 @@
         <div class="row">
         <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="col-md-5">
-            <div class="bar" style="width: <%= 100 * (fp.dm_reduced / fp.fight_time) / @max_dmps %>%">
+            <div class="bar" style="width: <%= 100 * (fp.dm_reduced / fp.fight_time) / @max_dmps rescue 0  %>%">
               <%= fp.dm_reduced / fp.fight_time %>/s
             </div>
         </div>
@@ -75,7 +75,7 @@
         <div class="row">
         <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="col-md-5">
-            <div class="bar" style="width: <%= 100 * (fp.zm_reduced / fp.fight_time) / @max_zmps %>%">
+            <div class="bar" style="width: <%= 100 * (fp.zm_reduced / fp.fight_time) / @max_zmps rescue 0  %>%">
               <%= fp.zm_reduced / fp.fight_time %>/s
             </div>
         </div>
@@ -91,7 +91,7 @@
         <div class="row">
         <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
         <div class="col-md-5">
-            <div class="bar" style="width: <%= 100 * (fp.fb_reduced / fp.fight_time) / @max_fbps %>%">
+            <div class="bar" style="width: <%= 100 * (fp.fb_reduced / fp.fight_time) / @max_fbps rescue 0  %>%">
               <%= fp.fb_reduced / fp.fight_time %>/s
             </div>
         </div>

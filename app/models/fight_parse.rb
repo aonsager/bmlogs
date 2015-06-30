@@ -30,6 +30,7 @@ class FightParse < ActiveRecord::Base
     @damage_by_source = {}
     @default_max_hp = 0
     self.shuffle = 0
+    self.difficulty = self.fight.difficulty
   end
 
   # getters
@@ -109,7 +110,9 @@ class FightParse < ActiveRecord::Base
 
   def drop_cooldown(type, timestamp, force = false)
     return if @cooldowns[type][:cp].nil?
-    unless force
+    if force
+      @cooldown_buffer[type] = timestamp
+    else
       if @cooldown_buffer[type] == 0 # allow for a buffer time, in case a buff is dropped before damage is recorded
         @cooldown_buffer[type] = timestamp
         return

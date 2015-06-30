@@ -17,7 +17,7 @@
       <div class="row">
         <div class="col-md-7">
           <div class="bar p<%= i %> light" style="width: <%= 100 * fp.gps / @max_bar %>%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed) %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.guard_healed / (fp.guard_absorbed + fp.guard_healed)  rescue 0 %>%">
               <%= fp.gps %>/s
             </div>
           </div>
@@ -28,7 +28,7 @@
         <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
         <div class="col-md-2 text-right"><%= guard.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
         <div class="col-md-5">
-          <div class="bar p<%= i %> light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard %>%">
+          <div class="bar p<%= i %> light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard  rescue 0 %>%">
             <div class="bar p<%= i %>" style="width: <%= 100 * guard.healed / (guard.absorbed_amount + guard.healed_amount) rescue 0 %>%"><%= (guard.absorbed_amount + guard.healed_amount) / 1000 %>k</div>
           </div>
         </div>
@@ -71,7 +71,7 @@
         <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
           <div class="col-md-2 text-right"><%= eb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
           <div class="col-md-5">
-            <div class="bar p<%= i %>" style="width: <%= 100 * eb.reduced_amount / @max_eb %>%"><%= eb.reduced_amount / 1000 %>k</div>
+            <div class="bar p<%= i %>" style="width: <%= 100 * eb.reduced_amount / @max_eb  rescue 0 %>%"><%= eb.reduced_amount / 1000 %>k</div>
           </div>
           <div class="col-md-3"><%= eb.reduced_amount %> dmg / <%= eb.time %> sec</div>
         </div>
@@ -114,7 +114,7 @@
           <div class="row" onclick="$('#dh-<%= dh.id %>').slideToggle();">
             <div class="col-md-2 text-right"><%= dh.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
             <div class="col-md-5">
-              <div class="bar p<%= i %>" style="width: <%= 100 * dh.reduced_amount / @max_dh %>%"><%= dh.reduced_amount / 1000 %>k</div>
+              <div class="bar p<%= i %>" style="width: <%= 100 * dh.reduced_amount / @max_dh  rescue 0 %>%"><%= dh.reduced_amount / 1000 %>k</div>
             </div>
             <div class="col-md-3"><%= dh.reduced_amount %> dmg / <%= dh.time %> sec</div>
           </div>
@@ -155,7 +155,7 @@
           <div class="row" onclick="$('#dm-<%= dm.id %>').slideToggle();">
             <div class="col-md-2 text-right"><%= dm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
             <div class="col-md-5">
-              <div class="bar p<%= i %>" style="width: <%= 100 * dm.reduced_amount / @max_dm %>%"><%= dm.reduced_amount / 1000 %>k</div>
+              <div class="bar p<%= i %>" style="width: <%= 100 * dm.reduced_amount / @max_dm rescue 0 %>%"><%= dm.reduced_amount / 1000 %>k</div>
             </div>
             <div class="col-md-3"><%= dm.reduced_amount %> dmg / <%= dm.time %> sec</div>
           </div>
@@ -197,7 +197,7 @@
           <div class="row" onclick="$('#zm-<%= zm.id %>').slideToggle();">
             <div class="col-md-2 text-right"><%= zm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
             <div class="col-md-5">
-              <div class="bar p<%= i %>" style="width: <%= 100 * zm.reduced_amount / @max_zm %>%"><%= zm.reduced_amount / 1000 %>k</div>
+              <div class="bar p<%= i %>" style="width: <%= 100 * zm.reduced_amount / @max_zm rescue 0 %>%"><%= zm.reduced_amount / 1000 %>k</div>
             </div>
             <div class="col-md-3"><%= zm.reduced_amount %> dmg / <%= zm.time %> sec</div>
           </div>
@@ -239,7 +239,7 @@
           <div class="row" onclick="$('#fb-<%= fb.id %>').slideToggle();">
             <div class="col-md-2 text-right"><%= fb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
             <div class="col-md-5">
-              <div class="bar p<%= i %>" style="width: <%= 100 * fb.reduced_amount / @max_fb %>%"><%= fb.reduced_amount / 1000 %>k</div>
+              <div class="bar p<%= i %>" style="width: <%= 100 * fb.reduced_amount / @max_fb rescue 0 %>%"><%= fb.reduced_amount / 1000 %>k</div>
             </div>
             <div class="col-md-3"><%= fb.reduced_amount %> dmg / <%= fb.time %> sec</div>
           </div>
