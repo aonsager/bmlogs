@@ -11,7 +11,7 @@
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-primary') %>
   <br /><br />
 
-  <h4>Guard Effectiveness</h4>
+  <h4>Guard Effectiveness <a class="tiny" data-toggle="popover" title="Guard Effectiveness" data-content="The total amount of damage mitigated through Guard / fight time. The effectiveness of each invididual Guard cast is the sum of the damage that was absorbed, and the 30% boost to self-healing.">Explain this</a></h4>
   <% @fps.each_with_index do |fp, i| %>
     <section>
       <div class="row">
@@ -56,7 +56,7 @@
   <% end %>
   
 
-  <h4>Elusive Brew Effectiveness</h4>
+  <h4>Elusive Brew Effectiveness <a class="tiny" data-toggle="popover" title="Elusive Brew Effectiveness" data-content="The total amount of damage mitigated through Elusive Brew / fight time. The effectiveness of each invididual Elusive Brew cast is calculated by recording each attack that was dodged, and summing the damage it would have done had it hit you, based on average damage taken from that ability over the course of the fight.">Explain this</a></h4>
   <% @fps.each_with_index do |fp, i| %>
     <section>
       <div class="row">
@@ -99,7 +99,7 @@
   <% end %>
 
   <% unless @fps.map{|fp| fp.cooldown_parses.dh.count}.max == 0 %>
-    <h4>Dampen Harm Effectiveness</h4>
+    <h4>Dampen Harm Effectiveness <a class="tiny" data-toggle="popover" title="Dampen Harm Effectiveness" data-content="The total amount of damage mitigated through Dampen Harm / fight time. Each cast of Dampen Harm has its 3 highest hitting attacks recorded, and calculates the total damage mitigation (50% if the attack did >15% of your total health). Because the mitigation happens before any damage is recorded, it's difficult to know for sure whether an attack that did between 7.5-15% of your total health was actually mitigated or not.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <section>
         <div class="row">
@@ -140,7 +140,7 @@
   <% end %>
 
   <% unless @fps.map{|fp| fp.cooldown_parses.dm.count}.max == 0 %>
-    <h4>Diffuse Magic Effectiveness</h4>
+    <h4>Diffuse Magic Effectiveness <a class="tiny" data-toggle="popover" title="Diffuse Magic Effectiveness" data-content="The total amount of damage mitigated through Diffuse magic / fight time. Each cast of Diffuse Magic records all magic damage taken while it is up, and calculates the total mitigation (90%)">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <section>
         <div class="row">
@@ -182,7 +182,7 @@
   <% end %>
 
   <% unless @fps.map{|fp| fp.cooldown_parses.zm.count}.max == 0 %>
-    <h4>Zen Meditation Effectiveness</h4>
+    <h4>Zen Meditation Effectiveness <a class="tiny" data-toggle="popover" title="Zen Meditation Effectiveness" data-content="The total amount of damage mitigated through Zen Meditation / fight time. Each cast of Zen Meditation records all damage taken while it is up, and calculates the total mitigation (90%)">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <section>
         <div class="row">
@@ -224,7 +224,7 @@
   <% end %>
 
   <% unless @fps.map{|fp| fp.cooldown_parses.fb.count}.max == 0 %>
-    <h4>Fortifying Brew Effectiveness</h4>
+    <h4>Fortifying Brew Effectiveness <a class="tiny" data-toggle="popover" title="Fortifying Brew Effectiveness" data-content="The total amount of damage mitigated through Fortifying Brew / fight time. Each cast of Fortifying Brew records all damage taken while it is up, and calculates the total mitigation (20%). Increased Stagger is not taken into effect here, so its total effectiveness may be understated.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <section>
         <div class="row">
@@ -265,3 +265,9 @@
     <% end %>
   <% end %>
 </div>
+
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+</script>

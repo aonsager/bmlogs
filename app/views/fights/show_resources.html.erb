@@ -12,7 +12,7 @@
   <br /><br />
 
   <section>
-    <h4>Kegsmash Efficiency</h4>
+    <h4>Kegsmash Efficiency <a class="tiny" data-toggle="popover" title="Kegsmash Efficiency" data-content="The number of times you cast Kegsmash / the number of casts you had time for. Aim for 100%.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -26,7 +26,7 @@
   </section>
 
   <section>
-    <h4>Shuffle Uptime</h4>
+    <h4>Shuffle Uptime <a class="tiny" data-toggle="popover" title="Shuffle Uptime" data-content="The percent of the fight that you had Shuffle active. Aim for 100%.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -42,7 +42,7 @@
   </section>
 
   <section>
-    <h4>Time not Energy-Capped</h4>
+    <h4>Time not Energy-Capped <a class="tiny" data-toggle="popover" title="Time not Energy-Capped" data-content="The percent of the fight that you had less than max Energy (except while Serenity was active). Aim for 100%.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -58,7 +58,7 @@
   </section>
 
   <section>
-    <h4>Stagger Purified</h4>
+    <h4>Stagger Purified <a class="tiny" data-toggle="popover" title="Stagger Purified" data-content="The amount of Stagger purified / the total amount of damage converted to Stagger. 100% is unrealistic, but higher percents mean you took less damage.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -73,3 +73,9 @@
     <% end %>
   </section>
 </div>
+
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+</script>

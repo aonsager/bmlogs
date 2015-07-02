@@ -11,7 +11,7 @@
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
   <br /><br />
   <section>
-    <h4>Damage per Second</h4>
+    <h4>Damage per Second <a class="tiny" data-toggle="popover" title="Damage per Second" data-content="Total damage / Fight time. Xuen's damage is shown with a separate color">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -25,7 +25,7 @@
   </section>
 
   <section>
-    <h4>Damage Taken per Second</h4>
+    <h4>Damage Taken per Second <a class="tiny" data-toggle="popover" title="Damage Taken per Second" data-content="This is the total damage (divided by fight time) that actually reduced your HP. Absorbs are not included.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -39,7 +39,7 @@
   </section>
 
   <section>
-    <h4>Self Healing per Second</h4>
+    <h4>Self Healing per Second <a class="tiny" data-toggle="popover" title="Self Healing per Second" data-content="The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -55,7 +55,7 @@
   </section>
 
   <section>
-    <h4>External Healing per Second</h4>
+    <h4>External Healing per Second <a class="tiny" data-toggle="popover" title="External Healing per Second" data-content="The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
         <div class="col-md-5">
@@ -70,3 +70,9 @@
       <% end %>
   </section>
 </div>
+
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+</script>
