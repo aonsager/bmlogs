@@ -30,7 +30,6 @@ class FightParse < ActiveRecord::Base
     @damage_by_source = {}
     @default_max_hp = 0
     self.shuffle = 0
-    self.difficulty = self.fight.difficulty
   end
 
   # getters
