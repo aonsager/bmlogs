@@ -13,6 +13,10 @@
   <%= link_to('View Characters', '', class: 'btn btn-primary') %>
   <br /><br />
 
+  <% if @players.size == 0 %>
+    <p>Please use the "Reload Logs" button in the upper right to import your combat logs from Warcraft Logs.</p>
+  <% end %>
+
   <table class="table">
     <thead>
       <tr>
