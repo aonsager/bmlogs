@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   before_filter :get_user
 
   def refresh
-    response = HTTParty.get("https://www.warcraftlogs.com:443/v1/reports/user/#{@user_id}?api_key=#{ENV['API_KEY']}")
+    response = HTTParty.get("https://www.warcraftlogs.com:443/v1/reports/user/#{@user_id}?api_key=#{ENV['WCL_API_KEY']}")
     case response.code
     when 500...600
       flash[:danger] = response['error']

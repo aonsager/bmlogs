@@ -1,7 +1,7 @@
 class ZonesController < ApplicationController
   
   def refresh
-    response = HTTParty.get("https://www.warcraftlogs.com:443/v1/zones?api_key=#{ENV['API_KEY']}")
+    response = HTTParty.get("https://www.warcraftlogs.com:443/v1/zones?api_key=#{ENV['WCL_API_KEY']}")
     zones = JSON.parse(response.body)
     zones.each do |zone|
       next if zone['id'] < 6

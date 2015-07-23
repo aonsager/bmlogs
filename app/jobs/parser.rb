@@ -11,7 +11,7 @@ class Parser
     @fight_id = fight_id
     @report_id = report_id
     fight = Fight.where(report_id: report_id, fight_id: fight_id).first
-    response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['API_KEY']}")
+    response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
     obj = JSON.parse(response.body)
     composition = obj['composition']
     events = obj['events']
@@ -135,7 +135,7 @@ class Parser
       if cursor >=  fight.ended_at
         break
       else 
-        response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['API_KEY']}")
+        response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")
         obj = JSON.parse(response.body)
         events = obj['events']
       end
