@@ -1,3 +1,5 @@
+require 'resque/errors'
+
 class Parser
   @queue = :parse
   @fight_id = 0
@@ -143,6 +145,10 @@ class Parser
     bm_ids.each do |bm_id, guid|
       fight_parses[bm_id].clean
       fight_parses[bm_id].save
+    end
+
+    rescue Resque::TermException
+      Resque.enqueue(self, fight_id, report_id)
     end
   end
 

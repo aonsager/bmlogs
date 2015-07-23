@@ -38,7 +38,7 @@ gem 'gretel'
 
 # worker queues
 gem 'resque'
-gem "hirefire"
+gem "hirefire-resource"
 
 gem 'rails_12factor', group: :production
 
