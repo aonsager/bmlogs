@@ -26,7 +26,7 @@
       </div>
       <% fp.cooldown_parses.guard.order(id: :asc).each do |guard| %>
         <div class="row" onclick="$('#g-<%= guard.id %>').slideToggle();">
-        <div class="col-md-2 text-right"><%= guard.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+        <div class="col-md-2 text-right"><%= guard.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
         <div class="col-md-5">
           <div class="bar p<%= i %> light" style="width: <%= 100 * (guard.absorbed_amount + guard.healed_amount) / @max_guard  rescue 0 %>%">
             <div class="bar p<%= i %>" style="width: <%= 100 * guard.healed / (guard.absorbed_amount + guard.healed_amount) rescue 0 %>%"><%= (guard.absorbed_amount + guard.healed_amount) / 1000 %>k</div>
@@ -69,7 +69,7 @@
       </div>
       <% fp.cooldown_parses.eb.order(id: :asc).each do |eb| %>
         <div class="row" onclick="$('#eb-<%= eb.id %>').slideToggle();">
-          <div class="col-md-2 text-right"><%= eb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+          <div class="col-md-2 text-right"><%= eb.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
           <div class="col-md-5">
             <div class="bar p<%= i %>" style="width: <%= 100 * eb.reduced_amount / @max_eb  rescue 0 %>%"><%= eb.reduced_amount / 1000 %>k</div>
           </div>
@@ -112,7 +112,7 @@
         </div>
         <% fp.cooldown_parses.dh.order(id: :asc).each do |dh| %>
           <div class="row" onclick="$('#dh-<%= dh.id %>').slideToggle();">
-            <div class="col-md-2 text-right"><%= dh.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-2 text-right"><%= dh.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
             <div class="col-md-5">
               <div class="bar p<%= i %>" style="width: <%= 100 * dh.reduced_amount / @max_dh  rescue 0 %>%"><%= dh.reduced_amount / 1000 %>k</div>
             </div>
@@ -153,7 +153,7 @@
         </div>
         <% fp.cooldown_parses.dm.order(id: :asc).each do |dm| %>
           <div class="row" onclick="$('#dm-<%= dm.id %>').slideToggle();">
-            <div class="col-md-2 text-right"><%= dm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-2 text-right"><%= dm.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
             <div class="col-md-5">
               <div class="bar p<%= i %>" style="width: <%= 100 * dm.reduced_amount / @max_dm rescue 0 %>%"><%= dm.reduced_amount / 1000 %>k</div>
             </div>
@@ -195,7 +195,7 @@
         </div>
         <% fp.cooldown_parses.zm.order(id: :asc).each do |zm| %>
           <div class="row" onclick="$('#zm-<%= zm.id %>').slideToggle();">
-            <div class="col-md-2 text-right"><%= zm.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-2 text-right"><%= zm.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
             <div class="col-md-5">
               <div class="bar p<%= i %>" style="width: <%= 100 * zm.reduced_amount / @max_zm rescue 0 %>%"><%= zm.reduced_amount / 1000 %>k</div>
             </div>
@@ -237,7 +237,7 @@
         </div>
         <% fp.cooldown_parses.fb.order(id: :asc).each do |fb| %>
           <div class="row" onclick="$('#fb-<%= fb.id %>').slideToggle();">
-            <div class="col-md-2 text-right"><%= fb.time_s %> <img src="/assets/down.png" height="15px" width="15px"/></div>
+            <div class="col-md-2 text-right"><%= fb.time_s %> <%= image_tag('down.png', size: '15z15') %></div>
             <div class="col-md-5">
               <div class="bar p<%= i %>" style="width: <%= 100 * fb.reduced_amount / @max_fb rescue 0 %>%"><%= fb.reduced_amount / 1000 %>k</div>
             </div>
