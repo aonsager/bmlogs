@@ -147,9 +147,8 @@ class Parser
       fight_parses[bm_id].save
     end
 
-    rescue Resque::TermException
-      Resque.enqueue(self, fight_id, report_id)
-    end
+  rescue Resque::TermException
+    Resque.enqueue(self, fight_id, report_id)
   end
 
 end
