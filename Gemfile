@@ -38,7 +38,7 @@ gem 'gretel'
 
 # worker queues
 gem 'resque'
-gem "hirefire-resource"
+gem "hirefire"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
