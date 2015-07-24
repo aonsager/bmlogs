@@ -46,7 +46,8 @@ html, body {
   min-height: 100%;
   height: auto !important;
   height: 100%;
-  margin: 0 auto -100px; /* the bottom margin is the negative value of the footer's height */
+  padding-bottom: 70px;
+  margin: 0 auto -50px; /* the bottom margin is the negative value of the footer's height */
 }
 
 #header {
@@ -69,8 +70,8 @@ html, body {
 
 #footer, #push{
   width: 80%;
-  margin: 50px auto;
-  border-top: 1px solid rgb(30, 180, 123);
+  margin: 0px auto;
+  border-top: 1px solid #cccccc;
   height: 50px;
   box-sizing: border-box;
   padding: 15px;
