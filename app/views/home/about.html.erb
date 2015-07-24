@@ -6,9 +6,34 @@
   <p>That said, there are a few Brewmaster-specific metrics that I hope will be an interesting contribution to the community, such as a measure of Guard and Elusive Brew effectiveness.</p>
   <p>All log information is taken from the <a href="warcraftlogs.com" target="_blank">Warcraft Logs</a> public API, so you must create a WCL account and upload your logs there first, before importing them to this site.</p>
 
-  <h3>How do I create an account?</h3>
-  <p>Because all of the information this site will access from Warcraft Logs is public, I didn't feel a need to make people create accounts. Just enter your Warcraft Logs username to start looking at your log data</p>
-  <p>Please note that unfortunately this currently works only for personal logs, and not guild logs.</p>
+  <h3>What information can I see in the reports?</h3>
+  <h3>1. Key metrics</h3>
+<!--   <ul>
+    <li>Damage per second (DPS)</li>
+    <li>Damage taken per second (DTPS)</li>
+    <li>Self healing per second (SHPS)</li>
+    <li>and External healing per second (EHPS)</li>
+  </ul> -->
+  <p><%= image_tag('kpi.png') %></p>
+  <h3>2. Resource management</h3>
+  <!-- <ul>
+    <li>Kegsmash efficiency</li>
+    <li>Shuffle uptime</li>
+    <li>Time spent not energy-capped</li>
+    <li>Percentage of stagger purified</li>
+  </ul> -->
+  <p><%= image_tag('resources.png') %></p>
+  <h3>3. Cooldown usage</h3>
+  <p>You can see the total damage mitigated by each of your active mitigation cooldowns:
+  <ul>
+    <li>Guard</li>
+    <li>Elusive Brew</li>
+    <li>Fortifying Brew</li>
+    <li>Dampen Harm</li>
+    <li>Diffuse Magic</li>
+    <li>Zen Meditation</li>
+  </ul>
+  <p><%= image_tag('cooldowns.png') %></p>
 
   <h3>How do I use the site?</h3>
   <p>To begin, please enter your Warcraft Logs username in the form above, and then use the "Reload Logs" button to begin importing your data.</p>
@@ -21,29 +46,8 @@
   <p>Any Brewmaster who shows up in your logs will be shown in this list, and you can browse all of the fights recorded for a certain character in one place.</p>
   <p>Multiple reports for the same boss will be shown together, so that you can compare your performance across attempts and see your improvement over time.</p>
 
-  <h3>What information can I see in the reports?</h3>
-  <h4>Key metrics</h4>
-  <ul>
-    <li>Damage per second (DPS)</li>
-    <li>Damage taken per second (DTPS)</li>
-    <li>Self healing per second (SHPS)</li>
-    <li>and External healing per second (EHPS)</li>
-  </ul>
-  <h4>Resource management</h4>
-  <ul>
-    <li>Kegsmash efficiency</li>
-    <li>Shuffle uptime</li>
-    <li>Time spent not energy-capped</li>
-    <li>Percentage of stagger purified</li>
-  </ul>
-  <h4>Cooldown usage</h4>
-  <p>You can see the total damage mitigated by each of your active mitigation cooldowns:
-  <ul>
-    <li>Guard</li>
-    <li>Elusive Brew</li>
-    <li>Fortifying Brew</li>
-    <li>Dampen Harm</li>
-    <li>Diffuse Magic</li>
-    <li>Zen Meditation</li>
-  </ul>
+  <h3>How do I create an account?</h3>
+  <p>Because all of the information this site will access from Warcraft Logs is public, I didn't feel a need to make people create accounts. Just enter your Warcraft Logs username to start looking at your log data</p>
+  <p>Please note that unfortunately this currently works only for personal logs, and not guild logs.</p>
+
 </div>
