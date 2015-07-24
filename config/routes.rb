@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   # get 'logs/:user/refresh' => 'logs#refresh'
   # get 'logs/import/:log_id' => 'logs#import', as: :import
 
+  get 'about' => 'home#about'
+
   resources :users, only: [:show] do
     get 'refresh'
 

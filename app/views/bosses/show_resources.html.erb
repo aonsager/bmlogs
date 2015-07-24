@@ -10,7 +10,7 @@
     <h4>Kegsmash Efficiency <a class="tiny" data-toggle="popover" title="Kegsmash Efficiency" data-content="The number of times you cast Kegsmash / the number of casts you had time for. Aim for 100%.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 800 * fp.kegsmash / fp.fight_time %>%"><%= fp.kegsmash %></div>
@@ -25,7 +25,7 @@
     <h4>Shuffle Uptime <a class="tiny" data-toggle="popover" title="Shuffle Uptime" data-content="The percent of the fight that you had Shuffle active. Aim for 100%.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= fp.shuffle / (10 * fp.fight_time) %>%">
@@ -42,7 +42,7 @@
     <h4>Time not Energy-Capped <a class="tiny" data-toggle="popover" title="Time not Energy-Capped" data-content="The percent of the fight that you had less than max Energy (expect while Serenity was active). Aim for 100%.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 100*(fp.fight_time - fp.capped_time) / fp.fight_time %>%">
@@ -59,7 +59,7 @@
     <h4>Stagger Purified <a class="tiny" data-toggle="popover" title="Stagger Purified" data-content="The amount of Stagger purified / the total amount of damage converted to Stagger. 100% is unrealistic, but higher percents mean you take less damage.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar white" style="width: 100%">
             <div class="bar" style="width: <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger %>%">

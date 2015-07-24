@@ -10,11 +10,11 @@ class FightsController < ApplicationController
   end
 
   def show
-    @fight_id = params[:id]
+    fight_hash = params[:id]
     @player_id = params[:player_id]
-    @fight = Fight.find_by(id: @fight_id)
+    @fight = Fight.find_by(fight_hash: fight_hash)
     @report = Report.find_by(report_id: @fight.report_id)
-    @fps = FightParse.where(fight_id: @fight_id).to_a
+    @fps = @fight.fight_parses.to_a
 
     case params[:tab]
     when 'resources'

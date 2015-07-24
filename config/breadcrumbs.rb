@@ -16,7 +16,7 @@ crumb :report do |report|
 end
 
 crumb :fight do |fight, fp, report|
-  link "#{fight.name} (#{DifficultyType.label(fp.difficulty)}) (#{fp.fight_time / 60}:#{fp.fight_time % 60})", fight_path(fight.id)
+  link "#{fight.name} (#{DifficultyType.label(fp.difficulty)}) (#{fp.fight_time / 60}:#{fp.fight_time % 60})", fight_path(fight.fight_hash)
   parent :report, report
 end
 

@@ -31,7 +31,7 @@ class Parser
       u2p = UserToPlayer.where(user_id: user_id, player_id: bm_hash[:guid]).first_or_initialize
       u2p.update_attributes(player_name: bm_hash[:name])
       FightParse.where(fight_id: fight.id, user_id: user_id, player_id: bm_hash[:guid]).destroy_all
-      fight_parses[bm_id] = FightParse.create(fight_id: fight.id, user_id: user_id, player_id: bm_hash[:guid], boss_id: fight.boss_id, difficulty: fight.difficulty)
+      fight_parses[bm_id] = FightParse.create(fight_id: fight.id, fight_hash: fight.fight_hash, user_id: user_id, player_id: bm_hash[:guid], boss_id: fight.boss_id, difficulty: fight.difficulty)
       fight_parses[bm_id].started_at = fight.started_at
       fight_parses[bm_id].ended_at = fight.ended_at
     end

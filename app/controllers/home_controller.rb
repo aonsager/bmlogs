@@ -6,6 +6,10 @@ class HomeController < ApplicationController
     end
   end
 
+  def about
+    
+  end
+
   def logout
     session.delete :user_id
     redirect_to root_path

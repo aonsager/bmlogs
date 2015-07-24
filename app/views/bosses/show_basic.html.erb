@@ -10,7 +10,7 @@
     <h4>Damage per Second <a class="tiny" data-toggle="popover" title="Damage per Second" data-content="Total damage / Fight time. Xuen's damage is shown with a separate color">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar light" style="width: <%= 100 * fp.dps / @max_dps %>%">
             <div class="bar" style="width: <%= 100 * fp.player_damage_done / (fp.player_damage_done + fp.pet_damage_done) %>%"><%= fp.dps %>/s</div>
@@ -25,7 +25,7 @@
     <h4>Damage Taken per Second <a class="tiny" data-toggle="popover" title="Damage Taken per Second" data-content="This is the total damage (divided by fight time) that actually reduced your HP. Absorbs are not included.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar" style="width: <%= 100 * fp.dtps / @max_dtps %>%">
             <%= fp.dtps %>/s
@@ -40,7 +40,7 @@
     <h4>Self Healing per Second <a class="tiny" data-toggle="popover" title="Self Healing per Second" data-content="The total amount (divided by fight time) that you healed yourself. Absorbs are shown with a separate color.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar light" style="width: <%= 100 * fp.shps / @max_shps %>%">
             <div class="bar" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) %>%">
@@ -57,7 +57,7 @@
     <h4>External Healing per Second <a class="tiny" data-toggle="popover" title="External Healing per Second" data-content="The total amount (divided by fight time) that other sources healed you. Absorbs are shown with a separate color.">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
-        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_id) %></div>
+        <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
         <div class="col-md-5">
           <div class="bar light" style="width: <%= 100 * fp.ehps / @max_ehps %>%">
             <div class="bar" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) %>%">
