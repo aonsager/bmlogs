@@ -1,5 +1,49 @@
-<%= render :partial => '/share/about' %>
+<div class="container" style="margin-top: 100px">
+  <h3>What does this site do?</h3>
+  <p>This site is made for Brewmasters in the World of Warcraft who want to improve by tracking their performance across raid encounters, based on a small number of key metrics.</p>
+  <p>It is designed primarily for those who want to improve their basic rotation. It probably will not provide enough information to be useful to advanced players who are already very comfortable with the class and are now trying to maximize their output.</p>
+  <p>This site is not meant to give a detailed overview of the fights, as there are multiple other sites designed for that purpose. The goal instead of to distill the logs to a small amount of information about your survivability and general execution, which can then be easily tracked and compared across multiple attempts.</p>
+  <p>That said, there are a few Brewmaster-specific metrics that I hope will be an interesting contribution to the community, such as a measure of Guard and Elusive Brew effectiveness.</p>
+  <p>All log information is taken from the <a href="warcraftlogs.com" target="_blank">Warcraft Logs</a> public API, so you must create a WCL account and upload your logs there first, before importing them to this site.</p>
 
-<div class="container" style="margin-top: 50px; margin-bottom: 50px;">
-  <p>You can follow me on Twitter at <a href="http://twitter.com/epwna_monk">@epwna_monk</a></p>
+  <h3>How do I create an account?</h3>
+  <p>Because all of the information this site will access from Warcraft Logs is public, I didn't feel a need to make people create accounts. Just enter your Warcraft Logs username to start looking at your log data</p>
+  <p>Please note that unfortunately this currently works only for personal logs, and not guild logs.</p>
+
+  <h3>How do I use the site?</h3>
+  <p>To begin, please enter your Warcraft Logs username in the form above, and then use the "Reload Logs" button to begin importing your data.</p>
+
+  <h4>Viewing by report</h4>
+  <p>From the list of logs you have imported from WCL, you can generate reports on a per-fight basis.</p>
+  <p>Generating a report may take a long time based on how many other people are using the site, so please be patient</p>
+
+  <h4>Viewing by character</h4>
+  <p>Any Brewmaster who shows up in your logs will be shown in this list, and you can browse all of the fights recorded for a certain character in one place.</p>
+  <p>Multiple reports for the same boss will be shown together, so that you can compare your performance across attempts and see your improvement over time.</p>
+
+  <h3>What information can I see in the reports?</h3>
+  <h4>Key metrics</h4>
+  <ul>
+    <li>Damage per second (DPS)</li>
+    <li>Damage taken per second (DTPS)</li>
+    <li>Self healing per second (SHPS)</li>
+    <li>and External healing per second (EHPS)</li>
+  </ul>
+  <h4>Resource management</h4>
+  <ul>
+    <li>Kegsmash efficiency</li>
+    <li>Shuffle uptime</li>
+    <li>Time spent not energy-capped</li>
+    <li>Percentage of stagger purified</li>
+  </ul>
+  <h4>Cooldown usage</h4>
+  <p>You can see the total damage mitigated by each of your active mitigation cooldowns:
+  <ul>
+    <li>Guard</li>
+    <li>Elusive Brew</li>
+    <li>Fortifying Brew</li>
+    <li>Dampen Harm</li>
+    <li>Diffuse Magic</li>
+    <li>Zen Meditation</li>
+  </ul>
 </div>

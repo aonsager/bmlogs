@@ -1,7 +1,7 @@
 class Fight < ActiveRecord::Base
   belongs_to :report
   has_many :fight_parses, dependent: :destroy
-  enum status: [:fresh, :processing, :done, :failed]
+  enum status: [:fresh, :processing, :done, :failed, :empty]
   before_create :assign_unique_hash
 
   def button_html
@@ -12,6 +12,8 @@ class Fight < ActiveRecord::Base
       return ActionController::Base.helpers.link_to('Processing...', '#', class: 'btn btn-warning', disabled: 'disabled')
     when 'done'
       return ActionController::Base.helpers.link_to('View Fight', Rails.application.routes.url_helpers.fight_path(self.fight_hash), class: 'btn btn-success')
+    when 'empty'
+      return ActionController::Base.helpers.link_to('No Brewmasters found', '#', class: 'btn btn-error', disabled: 'disabled')
     else
       return ActionController::Base.helpers.link_to('Failed :(', '#', class: 'btn btn-error', disabled: 'disabled')
     end

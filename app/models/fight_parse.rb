@@ -282,7 +282,7 @@ class FightParse < ActiveRecord::Base
       eb.reduced_amount = 0
       eb.ability_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
-          if @damage_by_source[source_id].has_key?(ability_id)
+          if @damage_by_source.has_key?(source_id) && @damage_by_source[source_id].has_key?(ability_id)
             ability[:avg] = @damage_by_source[source_id][ability_id][:total] / @damage_by_source[source_id][ability_id][:count]
           else
             ability[:avg] = 0 #TODO get data from other parses?
@@ -301,8 +301,6 @@ class FightParse < ActiveRecord::Base
     self.dm_reduced = self.cooldown_parses.dm.sum(:reduced_amount)
     self.zm_reduced = self.cooldown_parses.zm.sum(:reduced_amount)
     self.fb_reduced = self.cooldown_parses.fb.sum(:reduced_amount)
-    self.fight.status = :done
-    self.fight.save
   end
 
 end

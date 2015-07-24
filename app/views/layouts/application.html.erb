@@ -10,11 +10,15 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-<%= render "layouts/header" %>
-<% flash.each do |type, msg| -%>
-  <%= content_tag :div, msg, class: "alert alert-#{type} alert-dismissible" %>
-  <% end -%>
-<%= yield %>
-
+  <div id="wrapper">
+    <%= render "layouts/header" %>
+    <% flash.each do |type, msg| -%>
+      <div class="alert alert-<%=type%> alert-dismissible">
+        <%=raw msg %>
+      </div>
+      <% end -%>
+    <%= yield %>
+    <%= render "layouts/footer" %>
+  </div>
 </body>
 </html>

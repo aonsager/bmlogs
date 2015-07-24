@@ -142,9 +142,16 @@ class Parser
         events = obj['events']
       end
     end
-    bm_ids.each do |bm_id, guid|
-      fight_parses[bm_id].clean
-      fight_parses[bm_id].save
+    if bm_ids.count == 0
+      fight.status = :empty
+      fight.save
+    else
+      bm_ids.each do |bm_id, guid|
+        fight_parses[bm_id].clean
+        fight_parses[bm_id].save
+      end
+      fight.status = :done
+      fight.save
     end
 
   rescue Resque::TermException

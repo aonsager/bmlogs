@@ -8,6 +8,10 @@ class UsersController < ApplicationController
       flash[:danger] = response['error']
       redirect_to :back
       return 
+    when 400
+      flash[:danger] = "User not found. Please try <a href='/logout'>reentering your username</a>"
+      redirect_to :back
+      return
     end
     reports = JSON.parse(response.body)
     reports.each do |report|

@@ -6,4 +6,13 @@
   <% end %>
 </div>
 
-<%= render :partial => '/share/about' %>
+<div class="container" style="margin-top: 100px">
+  <h3>What does this site do?</h3>
+  <p>This site is made for Brewmasters in the World of Warcraft who want to improve by tracking their performance across raid encounters, based on a small number of key metrics.</p>
+  <p>It is designed primarily for those who want to improve their basic rotation. It probably will not provide enough information to be useful to advanced players who are already very comfortable with the class and are now trying to maximize their output.</p>
+  <p>This site is not meant to give a detailed overview of the fights, as there are multiple other sites designed for that purpose. The goal instead of to distill the logs to a small amount of information about your survivability and general execution, which can then be easily tracked and compared across multiple attempts.</p>
+  <p>That said, there are a few Brewmaster-specific metrics that I hope will be an interesting contribution to the community, such as a measure of Guard and Elusive Brew effectiveness.</p>
+  <p>All log information is taken from the <a href="warcraftlogs.com" target="_blank">Warcraft Logs</a> public API, so you must create a WCL account and upload your logs there first, before importing them to this site.</p>
+  <br /><br />
+  <p><%= link_to 'Click here', action: 'about' %> to learn more about the site.</p>
+</div>

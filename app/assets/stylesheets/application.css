@@ -16,7 +16,12 @@
 
  * {
   font-family: 'Avenir', 'Arial', 'sans-serif';
+  margin: 0;
  }
+
+html, body {
+  height: 100%;
+}
 
 .navbar {
   border-radius: 0px;
@@ -37,6 +42,13 @@
   color: white;
 }
 
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -100px; /* the bottom margin is the negative value of the footer's height */
+}
+
 #header {
   min-height: 30px;
   width: 100%;
@@ -53,6 +65,18 @@
 #header a {
   color: white;
   text-decoration: underline;
+}
+
+#footer, #push{
+  width: 80%;
+  margin: 50px auto;
+  border-top: 1px solid rgb(30, 180, 123);
+  height: 50px;
+  box-sizing: border-box;
+  padding: 15px;
+  line-height: 25px;
+  text-align: right;
+  font-size: 12px;
 }
 
 h1, h2, h3, h4, h5 {
