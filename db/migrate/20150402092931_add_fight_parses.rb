@@ -2,7 +2,7 @@ class AddFightParses < ActiveRecord::Migration
   def change
     create_table :fight_parses do |t|
       t.integer  :fight_id, null: false
-      t.text     :user_id, null: false
+      t.text     :user_id
       t.integer  :player_id, null: false
       t.integer  :boss_id
       t.integer  :difficulty

@@ -1,9 +1,28 @@
 <div class="container text-center">
-  <h2>Warcraft Logs username:</h2>
-  <%= form_tag('', method: "get") do %>
-    <h2><%= text_field_tag(:user_id) %></h2>
-    <%= submit_tag("Start", class: "btn btn-primary btn-lg") %>
-  <% end %>
+  <h4>
+    <%= form_tag('/players/search', method: "get") do %>
+      <%= label_tag(:report_id, "Character name:") %>
+      <%= text_field_tag(:char_name) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
+  </h4>
+  or
+  <h4>
+    <%= form_tag('', method: "get") do %>
+      <%= label_tag(:report_id, "Warcraft Logs report ID:") %>
+      <%= text_field_tag(:report_id) %>
+      <%= submit_tag("Import", class: "btn btn-primary") %>
+    <% end %>
+  </h4>
+  or
+  <h4>
+    <%= form_tag('', method: "get") do %>
+      <%= label_tag(:report_id, "Warcraft Logs username:") %>
+      <%= text_field_tag(:user_id) %>
+      <%= submit_tag("Load", class: "btn btn-primary") %>
+    <% end %>
+  </h4>
+
 </div>
 
 <div class="container" style="margin-top: 100px">

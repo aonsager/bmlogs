@@ -3,9 +3,16 @@ class ReportsController < ApplicationController
 
   def import
     response = HTTParty.get("https://www.warcraftlogs.com:443/v1/report/fights/#{@report_id}?api_key=#{ENV['WCL_API_KEY']}")
+    puts "https://www.warcraftlogs.com:443/v1/report/fights/#{@report_id}?api_key=#{ENV['WCL_API_KEY']}"
     obj = JSON.parse(response.body)
     fights = obj['fights']
     players = obj['friendlies']
+    puts obj
+    if fights.nil? 
+      flash[:danger] = 'Report not found'
+      redirect_to :back
+      return 
+    end
     fights.each do |fight|
       next if fight['boss'].to_i == 0
       if !Fight.exists?(report_id: @report_id, fight_id: fight['id'])
@@ -22,15 +29,26 @@ class ReportsController < ApplicationController
         )
       end
     end
-
     report = Report.where(report_id: @report_id).first
-    report.update_attribute(:imported, true)
+    if report.nil?
+      Report.create(
+            report_id: @report_id,
+            title: @report_id,
+            user_id: @user_id,
+            imported: true
+          )
+    else
+      report.update_attributes(imported: true)
+    end
 
-    redirect_to user_path(report.user_id)
+    redirect_to :action => 'show', :id => @report_id
   end
 
   def show
     @report = Report.where(report_id: @report_id).first
+    if @report.nil?
+      redirect_to :action => 'import', :report_id => @report_id
+    end
     @fights = Fight.where(report_id: @report_id).order(fight_id: :asc)
   end
 

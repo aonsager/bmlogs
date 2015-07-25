@@ -17,4 +17,10 @@ class PlayersController < ApplicationController
       @player_bosses[fp.boss_id][fp.difficulty] += 1
     end
   end
+
+  def search
+    @char_name = params[:char_name]
+    @chars = UserToPlayer.where("player_name ILIKE ?", @char_name).to_a
+    @report_counts = FightParse.where(player_id: @chars.map(&:player_id)).group(:player_id).count.with_indifferent_access
+  end
 end

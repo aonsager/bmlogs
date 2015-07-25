@@ -23,6 +23,9 @@ Rails.application.routes.draw do
   resources :fights, only: [:show]
 
   resources :players, only: [:show] do
+    collection do
+      get 'search'
+    end
     resources :bosses, only: [] do
       get '/:difficulty' => 'bosses#show', as: :show
     end

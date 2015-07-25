@@ -7,12 +7,12 @@ crumb :user_report do |user_id|
 end
 
 crumb :user_chars do |user_id|
-  link "#{user_id} - Characters", user_players_path(user_id)
+  link "#{user_id} - Characters", user_players_path(user_id) unless user_id.nil?
 end
 
 crumb :report do |report|
   link report.title, report_path(report.report_id)
-  parent :user_report, report.user_id
+  # parent :user_report, report.user_id
 end
 
 crumb :fight do |fight, fp, report|
