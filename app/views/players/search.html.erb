@@ -7,6 +7,11 @@
 
   <% if @chars.size == 0 %>
     <p>No characters found. Try again?</p>
+    <%= form_tag('/players/search', method: "get") do %>
+      <%= label_tag(:report_id, "Character name:") %>
+      <%= text_field_tag(:char_name) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
   <% end %>
 
   <table class="table">
