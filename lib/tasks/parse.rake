@@ -10,8 +10,8 @@
 
 namespace :log do
   task :parse => :environment do
-    fight_id = 1
-    report_id = "a1Q4r72qtyTmfFDP"
+    fight_id = 26
+    report_id = "7QXCmcMpnxFzNLV2"
     fight = Fight.where(report_id: report_id, fight_id: fight_id).first
     response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
     puts '======='
@@ -40,6 +40,7 @@ namespace :log do
 
     cursor = fight.started_at
     loop do
+      break if events == []
       events.each do |event|
         if bm_ids.has_key?(event['sourceID']) # the player did something
           fp = fight_parses[event['sourceID']]
@@ -136,7 +137,7 @@ namespace :log do
         end
         cursor = event['timestamp'] + 1
       end
-      if cursor >= fight.ended_at || events == []
+      if cursor >= fight.ended_at
         break
       else 
         response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")

@@ -38,6 +38,7 @@ class Parser
 
     cursor = fight.started_at
     loop do
+      break if events == []
       events.each do |event|
         if bm_ids.has_key?(event['sourceID']) # the player did something
           fp = fight_parses[event['sourceID']]
@@ -134,7 +135,7 @@ class Parser
         end
         cursor = event['timestamp'] + 1
       end
-      if cursor >= fight.ended_at || events == []
+      if cursor >= fight.ended_at
         break
       else 
         response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")
