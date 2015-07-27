@@ -1,28 +1,31 @@
-== README
+== Brewmaster Logs
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Brewmaster Logs is made for Brewmasters in the World of Warcraft who want to improve by tracking their performance across raid encounters, based on a small number of key metrics.
 
-Things you may want to cover:
+It is designed primarily for those who want to improve their basic rotation. It probably will not provide enough information to be useful to advanced players who are already very comfortable with the class and are now trying to maximize their output.
 
-* Ruby version
+== Setup
 
-* System dependencies
+Requirements:
 
-* Configuration
+- Ruby >= 2.0
+- Rails >= 4.0
+- PostgreSQL 
 
-* Database creation
+```
+bundle install
+bundle exec rake db:migrate
+rails server
+```
 
-* Database initialization
+== Processing Queue
 
-* How to run the test suite
+Log parsing is handled by Resque, and can be accessed at localhost:3000/resque/
 
-* Services (job queues, cache servers, search engines, etc.)
+You need to run separate worker processes to go through the queue, and this is the command I use for that:
 
-* Deployment instructions
+```
+TERM_CHILD=1 bundle exec rake environment resque:work QUEUE=parse
+```
 
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+I'll update this doc as I think of more things to write.
