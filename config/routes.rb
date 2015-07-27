@@ -45,8 +45,8 @@ Rails.application.routes.draw do
     end
   end
   
-  # if Rails.env.development?
+  if Rails.env.development?
     mount Resque::Server.new, at: "/resque"
-  # end
+  end
 
 end

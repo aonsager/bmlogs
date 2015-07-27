@@ -1,10 +1,10 @@
-== Brewmaster Logs
+## Brewmaster Logs
 
 Brewmaster Logs is made for Brewmasters in the World of Warcraft who want to improve by tracking their performance across raid encounters, based on a small number of key metrics.
 
 It is designed primarily for those who want to improve their basic rotation. It probably will not provide enough information to be useful to advanced players who are already very comfortable with the class and are now trying to maximize their output.
 
-== Setup
+## Setup
 
 Requirements:
 
@@ -18,7 +18,7 @@ bundle exec rake db:migrate
 rails server
 ```
 
-== Processing Queue
+## Processing Queue
 
 Log parsing is handled by Resque, and can be accessed at localhost:3000/resque/
 
