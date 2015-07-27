@@ -16,6 +16,7 @@ class FightsController < ApplicationController
     @report = Report.find_by(report_id: @fight.report_id)
     @fps = @fight.fight_parses.to_a
     @players = UserToPlayer.where(player_id: @fps.map(&:player_id)).to_a
+    @fights = @report.fights_for_select
 
     case params[:tab]
     when 'resources'

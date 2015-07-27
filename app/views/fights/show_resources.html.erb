@@ -1,4 +1,4 @@
-<% breadcrumb :fight, @fight, @fps.first, @report %>
+<% breadcrumb :fight, @fight, @fps.first, @report, @fights %>
 
 <div class="container">
   <div class="title"><%= "#{@fight.name} (#{DifficultyType.label(@fight.difficulty)}) (#{@fps.first.fight_time / 60}:#{@fps.first.fight_time % 60})" %></div>
@@ -76,6 +76,17 @@
 
 <script>
 $(function () {
-  $('[data-toggle="popover"]').popover()
+  $('[data-toggle="popover"]').popover();
+  $('select#fight option').each(function(index, option){
+    if (option.value == "") {
+      name = $(option).text();
+      $(option).text('-- ' + name + ' --');
+    }
+  });
+  $('select#fight').change(function() {
+    val = $('select#fight').val();
+    if (val != "")
+      window.location = "/fights/" + val + "?tab=resources";
+  });
 })
 </script>

@@ -15,8 +15,8 @@ crumb :report do |report|
   # parent :user_report, report.user_id
 end
 
-crumb :fight do |fight, fp, report|
-  link "#{fight.name} (#{DifficultyType.label(fp.difficulty)}) (#{fp.fight_time / 60}:#{fp.fight_time % 60})", fight_path(fight.fight_hash)
+crumb :fight do |fight, fp, report, fights|
+  link select_tag(:fight, options_for_select(fights, fight.fight_hash)), fight_path(fight.fight_hash)
   parent :report, report
 end
 
