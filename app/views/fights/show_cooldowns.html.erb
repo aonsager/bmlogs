@@ -11,7 +11,7 @@
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-primary') %>
   <br /><br />
 
-  <h4>Guard Effectiveness <a class="tiny" data-toggle="popover" title="Guard Effectiveness" data-content="The total amount of damage mitigated through Guard / fight time. The effectiveness of each invididual Guard cast is the sum of the damage that was absorbed, and the 30% boost to self-healing.">Explain this</a></h4>
+  <h4>Guard Effectiveness <a class="tiny" data-toggle="popover" title="Guard Effectiveness" data-content="The total amount of damage mitigated through Guard / fight time. The effectiveness of each invididual Guard cast is the sum of the damage that was absorbed (light color), and the 30% boost to self-healing (dark color).">Explain this</a></h4>
   <% @fps.each_with_index do |fp, i| %>
     <section>
       <div class="row">

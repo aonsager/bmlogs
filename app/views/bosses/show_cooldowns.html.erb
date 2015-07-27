@@ -7,7 +7,7 @@
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-primary') %>
   <br /><br />
   <section>
-    <h4>Guard Effectiveness <a class="tiny" data-toggle="popover" title="Guard Effectiveness" data-content="The total amount of damage mitigated through Guard / fight time. The effectiveness of each invididual Guard cast is the sum of the damage that was absorbed, and the 30% boost to self-healing.">Explain this</a></h4>
+    <h4>Guard Effectiveness <a class="tiny" data-toggle="popover" title="Guard Effectiveness" data-content="The total amount of damage mitigated through Guard / fight time. The effectiveness of each invididual Guard cast is the sum of the damage that was absorbed (light color), and the 30% boost to self-healing (dark color).">Explain this</a></h4>
     <% @fights.each do |fp| %>
       <div class="row">
       <div class="col-md-1"><%= link_to fp.fight_date, fight_path(fp.fight_hash) %></div>
@@ -101,3 +101,9 @@
     </section>
   <% end %>
 </div>
+
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover();
+})
+</script>
