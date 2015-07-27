@@ -177,6 +177,10 @@ section {
   margin-bottom: 50px;
 }
 
+select {
+  color: black;
+}
+
 .slideout {
   display: none;
 }
