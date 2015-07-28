@@ -3,7 +3,6 @@ class ReportsController < ApplicationController
 
   def import
     response = HTTParty.get("https://www.warcraftlogs.com:443/v1/report/fights/#{@report_id}?api_key=#{ENV['WCL_API_KEY']}")
-    puts "https://www.warcraftlogs.com:443/v1/report/fights/#{@report_id}?api_key=#{ENV['WCL_API_KEY']}"
     obj = JSON.parse(response.body)
     fights = obj['fights']
     players = obj['friendlies']
