@@ -33,8 +33,11 @@ class ReportsController < ApplicationController
     if report.nil?
       Report.create(
             report_id: @report_id,
-            title: @report_id,
             user_id: @user_id,
+            title: obj['title'],
+            zone: obj['zone'],
+            started_at: Time.at(obj['start']/1000),
+            ended_at: Time.at(obj['end']/1000),
             imported: true
           )
     else
