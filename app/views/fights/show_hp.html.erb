@@ -41,6 +41,17 @@ $(function () {
         }
       },
       series: [
+      {
+          color: '#fff1ba',
+          connectNulls: false,
+          fillOpacity: 0.4,
+          data: <%=raw @hp_parse['self_absorb'] %>,
+          lineWidth: 0,
+          name: 'Self Absorb',
+          stack: 0,
+          // stacking: 'normal',
+          type: 'areaspline',
+        },
         {
           color: '#1fb47a',
           connectNulls: false,
@@ -52,17 +63,7 @@ $(function () {
           // stacking: 'normal',
           type: 'areaspline'
         },
-        {
-          color: '#fff1ba',
-          connectNulls: false,
-          fillOpacity: 0.4,
-          data: <%=raw @hp_parse['self_absorb'] %>,
-          lineWidth: 0,
-          name: 'Self Absorb',
-          stack: 0,
-          // stacking: 'normal',
-          type: 'areaspline',
-        },
+        
       ],
       title: {
         text: 'Tank Health'

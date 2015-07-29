@@ -36,7 +36,7 @@ class FightParse < ActiveRecord::Base
     }
     @serenity = false
     @shuffling = false
-
+    @last_hp = 0
     @total_eb = 0
     @damage_by_source = {}
     @default_max_hp = 0
@@ -254,7 +254,8 @@ class FightParse < ActiveRecord::Base
   end
 
   def record_hp(hitPoints, timestamp)
-    return if hitPoints.nil?
+    hitPoints ||= @last_hp
+    @last_hp = hitPoints
     time = (timestamp - self.started_at)
     @hp_parses[:hp][time] = hitPoints
   end
