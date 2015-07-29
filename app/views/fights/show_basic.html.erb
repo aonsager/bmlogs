@@ -44,7 +44,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="bar p<%= i %> light" style="width: <%= 100 * fp.shps / @max_bar %>%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) rescue 0 %>%">
               <%= fp.shps %>/s
             </div>
           </div>
@@ -60,7 +60,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="bar p<%= i %> light" style="width: <%= 100 * fp.ehps / @max_bar %>%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) rescue 0 %>%">
               <%= fp.ehps %>/s
             </div>
           </div>

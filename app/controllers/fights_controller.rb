@@ -39,12 +39,16 @@ class FightsController < ApplicationController
         @max_bar = [fp.gps, fp.ebps, fp.dh_reduced / fp.fight_time, fp.dm_reduced / fp.fight_time, fp.zm_reduced / fp.fight_time, fp.fb_reduced / fp.fight_time, @max_bar].max
       end
       render template: 'fights/show_cooldowns'
-    else
+    when 'basic'
       @max_bar = 1
       @fps.each do |fp|
         @max_bar = [fp.dps, fp.dtps, fp.shps, fp.ehps, @max_bar].max
       end
       render template: 'fights/show_basic'
+    when 'hp'
+      file = File.read(Rails.root.join('lib', 'tasks', 'testreport_163981229_hp.json'))
+      @hp_parse = JSON.parse(file)
+      render template: 'fights/show_hp'
     end
   end
 end

@@ -1,0 +1,88 @@
+<% breadcrumb :fight, @fight, @fps.first, @report, @fights %>
+<div class="container">
+  <div class="title"><%= "#{@fight.name} (#{DifficultyType.label(@fight.difficulty)}) (#{@fps.first.fight_time / 60}:#{@fps.first.fight_time % 60})" %></div>
+  <% @players.each_with_index do |player, i| %>
+    <a href="/players/<%= player.player_id %>"><div class="player-tag p<%= i %>"><%= player.player_name %></div></a>
+  <% end %>
+  <div style="clear:both"></div>
+  <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-primary') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-default') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
+  <br /><br />
+  <section>
+    <h4>Tank Health <a class="tiny" data-toggle="popover" title="Tank Health" data-content="Effective health, as affected by absorbs, heals, and damage reduction abilities">Explain this</a></h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <div id="graph-<%=i%>" class="graph" style="width:100%; height:400px; background-color: grey"></div>
+    <% end %>
+  </section>
+</div>
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover();
+  $('select#fight option').each(function(index, option){
+    if (option.value == "") {
+      name = $(option).text();
+      $(option).text('-- ' + name + ' --');
+    }
+  });
+  $('select#fight').change(function() {
+    val = $('select#fight').val();
+    if (val != "")
+      window.location = "/fights/" + val;
+  });
+  $(function () { 
+    $('.graph').highcharts({
+      chart: {
+        zoomType: 'x',
+      },
+      plotOptions: {
+        areaspline: {
+          stacking: 'normal'
+        }
+      },
+      series: [
+        {
+          color: '#1fb47a',
+          connectNulls: false,
+          fillOpacity: 0.4,
+          data: <%=raw @hp_parse['hp'].uniq %>,
+          lineWidth: 2,
+          name: 'Health',
+          stack: 0,
+          // stacking: 'normal',
+          type: 'areaspline'
+        },
+        {
+          color: '#fff1ba',
+          connectNulls: false,
+          fillOpacity: 0.4,
+          data: <%=raw @hp_parse['self_absorb'] %>,
+          lineWidth: 0,
+          name: 'Self Absorb',
+          stack: 0,
+          // stacking: 'normal',
+          type: 'areaspline',
+        },
+      ],
+      title: {
+        text: 'Tank Health'
+      },
+      tooltip: {
+        headerFormat: '{point.x:%M:%S}<br />',
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          second: '%M:%S',
+        },
+      },
+      yAxis: {
+        floor: 0,
+        title: {
+          text: 'Health',
+        }
+      },
+    });
+});
+})
+</script>
