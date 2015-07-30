@@ -4,12 +4,14 @@ class Fight < ActiveRecord::Base
   enum status: [:fresh, :processing, :done, :failed, :empty]
   before_create :assign_unique_hash
 
-  def button_html
-    case self.status
+  def button_html(force = nil)
+    if self.status == 'processing' # in progress has priority
+      return ActionController::Base.helpers.link_to('Processing...', '#', class: 'btn btn-warning', disabled: 'disabled')
+    end
+    
+    case force || self.status
     when 'fresh'
       return ActionController::Base.helpers.link_to('Process Fight', Rails.application.routes.url_helpers.report_fight_parse_path(self.report_id, self.fight_id), class: 'btn btn-default')
-    when 'processing'
-      return ActionController::Base.helpers.link_to('Processing...', '#', class: 'btn btn-warning', disabled: 'disabled')
     when 'done'
       return ActionController::Base.helpers.link_to('View Fight', Rails.application.routes.url_helpers.fight_path(self.fight_hash), class: 'btn btn-success')
     when 'empty'

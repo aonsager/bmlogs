@@ -23,9 +23,20 @@ class FightParse < ActiveRecord::Base
       'dh' => 0,
       'fb' => 0,
     }
+    @absorbs = {
+      :self_absorb => 0,
+      :external_absorb => 0
+    }
+    @hp_parses = {
+      :hp => {},
+      :self_heal => {},
+      :external_heal => {},
+      :self_absorb => {},
+      :external_absorb => {},
+    }
     @serenity = false
     @shuffling = false
-
+    @last_hp = 0
     @total_eb = 0
     @damage_by_source = {}
     @default_max_hp = 0
@@ -128,6 +139,22 @@ class FightParse < ActiveRecord::Base
     @cooldown_buffer[type] = 0
   end
 
+  def gain_absorb(guid, amount, type, hitPoints, timestamp) # type is :self_absorb or :external_absorb
+    @absorbs[type] += amount - @absorbs[guid].to_i # if the shield was refreshed, just add the difference
+    @absorbs[guid] = amount # refresh the shield size
+    time = (timestamp - self.started_at)
+    @hp_parses[type][time] = @absorbs[type]
+    self.record_hp(hitPoints, timestamp)
+  end
+
+  def drop_absorb(guid, amount, type, hitPoints, timestamp) # type is :self_absorb or :external_absorb
+    @absorbs[guid] = 0
+    @absorbs[type] -= amount
+    time = (timestamp - self.started_at)
+    @hp_parses[type][time]= @absorbs[type]
+    self.record_hp(hitPoints, timestamp)
+  end
+
   def calculate_dh
     @cooldowns['dh'][:cp].ability_hash = {}
     @cooldowns['dh'][:attacks].reject! {|attack| attack[:ability_id] == 0}
@@ -150,13 +177,13 @@ class FightParse < ActiveRecord::Base
     }
   end
 
-  def guard(ability_id, name, amount, timestamp)
+  def guard(ability_id, name, amount, hitPoints, timestamp)
     gain_cooldown('guard', timestamp) if !@cooldowns['guard'][:active]
     @cooldowns['guard'][:cp].ability_hash[ability_id] ||= {name: name, casts: 0, amount: 0}
     @cooldowns['guard'][:cp].ability_hash[ability_id][:amount] += amount
     @cooldowns['guard'][:cp].ability_hash[ability_id][:casts] += 1
     @cooldowns['guard'][:cp].absorbed_amount += amount
-    self.self_absorb(amount)
+    self.self_absorb(115295, amount, hitPoints, timestamp)
   end
 
   def gain_shuffle(timestamp)
@@ -193,21 +220,50 @@ class FightParse < ActiveRecord::Base
     self.pet_damage_done += amount
   end
 
-  def self_absorb(amount)
+  def self_absorb(guid, amount, hitPoints, timestamp)
     self.self_absorbing += amount
+    if @absorbs.has_key?(guid) # if this isn't here, we never recorded the application of the shield
+      @absorbs[guid] -= amount
+      @absorbs[:self_absorb] -= amount # to balance adding it earlier
+    end    
+    time = (timestamp - self.started_at)
+    @hp_parses[:self_absorb][time] = @absorbs[:self_absorb]
+    self.record_hp(hitPoints, timestamp)
   end
 
-  def self_heal(amount)
+  def self_heal(amount, hitPoints, timestamp)
     self.self_healing += amount
     @cooldowns['guard'][:cp].healed_amount += amount if @cooldowns['guard'][:active]
+    time = (timestamp - self.started_at)
+    @hp_parses[:self_heal][time] ||= 0
+    @hp_parses[:self_heal][time] += amount
+    self.record_hp(hitPoints, timestamp)
   end
 
-  def external_absorb(amount)
+  def external_absorb(guid, amount, hitPoints, timestamp)
     self.external_absorbing += amount
+    if @absorbs.has_key?(guid) # if this isn't here, we never recorded the application of the shield
+      @absorbs[guid] -= amount
+      @absorbs[:external_absorb] -= amount # to balance adding it earlier
+    end    
+    time = (timestamp - self.started_at)
+    @hp_parses[:external_absorb][time] = @absorbs[:external_absorb]
+    self.record_hp(hitPoints, timestamp)
   end
 
-  def external_heal(amount)
+  def external_heal(amount, hitPoints, timestamp)
     self.external_healing += amount
+    time = (timestamp - self.started_at)
+    @hp_parses[:external_heal][time] ||= 0
+    @hp_parses[:external_heal][time] += amount
+    self.record_hp(hitPoints, timestamp)
+  end
+
+  def record_hp(hitPoints, timestamp)
+    hitPoints ||= @last_hp
+    @last_hp = hitPoints
+    time = (timestamp - self.started_at)
+    @hp_parses[:hp][time] = hitPoints
   end
 
   def record_damage(timestamp, source_id, source_friendly, ability_id, name, ability_type, amount, absorbed, max_hp, tick)
@@ -295,6 +351,30 @@ class FightParse < ActiveRecord::Base
       eb.save
     end
 
+    @hp_parses.each do |key, hash|
+      next if key == :hp
+      prev = [0, 0]
+      @hp_parses[:hp].each do |time, value|
+        if hash.has_key?(time)
+          prev = [time, hash[time]]
+        else
+          if key == :self_heal || key == :external_heal
+            if time - prev[0] < 1000 # make the spikes easier to see in the graph
+              hash[time] = prev[1]
+            else
+              hash[time] = 0
+            end
+          else
+            hash[time] = prev[1]
+          end
+        end
+      end
+    end
+
+    @hp_parses.each {|key, value| @hp_parses[key] = value.sort_by{|time, value| time} }
+    # File.write(Rails.root.join('tmp', "#{self.fight_hash}_#{self.player_id}_hp.json"), @hp_parses.to_json)
+    S3_BUCKET.object("#{self.fight_hash}_#{self.player_id}_hp.json").put(body: @hp_parses.to_json)
+
     self.guard_absorbed = self.calc_guard_total[:absorbed]
     self.guard_healed = self.calc_guard_total[:healed]
     self.eb_avoided = self.calc_eb_total
@@ -302,6 +382,7 @@ class FightParse < ActiveRecord::Base
     self.dm_reduced = self.cooldown_parses.dm.sum(:reduced_amount)
     self.zm_reduced = self.cooldown_parses.zm.sum(:reduced_amount)
     self.fb_reduced = self.cooldown_parses.fb.sum(:reduced_amount)
+
   end
 
 end

@@ -39,6 +39,21 @@ class FightsController < ApplicationController
         @max_bar = [fp.gps, fp.ebps, fp.dh_reduced / fp.fight_time, fp.dm_reduced / fp.fight_time, fp.zm_reduced / fp.fight_time, fp.fb_reduced / fp.fight_time, @max_bar].max
       end
       render template: 'fights/show_cooldowns'
+    when 'hp'
+      @hp_parses = {}
+      @fps.each do |fp|
+        file = S3_BUCKET.object("#{fp.fight_hash}_#{fp.player_id}_hp.json")
+        if file.exists?
+          @hp_parses[fp.player_id] = JSON.parse(file.get.body.string)
+          @hp_parses[fp.player_id]['base_hp'] = []
+          @hp_parses[fp.player_id]['hp'].each_with_index do |hash, index|
+            @hp_parses[fp.player_id]['base_hp'][index] = [hash[0], hash[1] - @hp_parses[fp.player_id]['self_heal'][index][1] - @hp_parses[fp.player_id]['external_heal'][index][1]]
+          end
+        else
+          @prompt_import = true
+        end
+      end
+      render template: 'fights/show_hp'
     else
       @max_bar = 1
       @fps.each do |fp|

@@ -24,3 +24,5 @@ module Bmlogs
     config.active_record.raise_in_transactional_callbacks = true
   end
 end
+
+# Resque.redis = "redis://h:p9uq86n55m1ant6p02a75ag31pu@ec2-54-83-33-255.compute-1.amazonaws.com:11649"
