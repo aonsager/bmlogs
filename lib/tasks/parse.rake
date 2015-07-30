@@ -10,14 +10,15 @@
 
 namespace :log do
   task :parse => :environment do
-    fight_id = 1
-    report_id = "testreport"
+    fight_id = 10
+    report_id = "PRNMqcfTn7pzjABx"
     fight = Fight.where(report_id: report_id, fight_id: fight_id).first_or_create
-    # response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
+    response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
+    obj = JSON.parse(response.body)
     # puts '======='
     # puts "getting at time #{fight.started_at}"
     file = File.read(Rails.root.join('lib', 'tasks', 'log1.json'))
-    obj = JSON.parse(file)
+    # obj = JSON.parse(file)
     composition = obj['composition']
     events = obj['events']
     bm_ids = {}
@@ -40,7 +41,7 @@ namespace :log do
     end
 
     cursor = fight.started_at
-    # loop do
+    loop do
       break if events == []
       events.each do |event|
         if bm_ids.has_key?(event['sourceID']) # the player did something
@@ -113,7 +114,7 @@ namespace :log do
         if bm_ids.has_key?(event['targetID']) # something was done to the player
           fp = fight_parses[event['targetID']]
           case event['type']
-          when 'applybuff'
+          when 'applybuff', 'refreshbuff'
             if event['sourceID'] != event['targetID'] && event.has_key?('absorb') # external absorb
               fp.gain_absorb(event['ability']['guid'], event['absorb'], :external_absorb, event['hitPoints'], event['timestamp'])
             end
@@ -149,16 +150,17 @@ namespace :log do
         end
         cursor = event['timestamp'] + 1
       end
-      # if cursor >= fight.ended_at
-      #   break
-      # else 
-      #   response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")
-      #   puts '======='
-      #   puts "getting at time #{cursor}"
-      #   obj = JSON.parse(response.body)
-      #   events = obj['events']
-      # end
-    # end
+      if cursor >= fight.ended_at
+        puts "ended at #{cursor}"
+        break
+      else 
+        response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")
+        puts '======='
+        puts "getting at time #{cursor}"
+        obj = JSON.parse(response.body)
+        events = obj['events']
+      end
+    end
     if bm_ids.count == 0
       fight.status = :empty
       fight.save

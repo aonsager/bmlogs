@@ -140,8 +140,8 @@ class FightParse < ActiveRecord::Base
   end
 
   def gain_absorb(guid, amount, type, hitPoints, timestamp) # type is :self_absorb or :external_absorb
-    @absorbs[guid] = amount
-    @absorbs[type] += amount
+    @absorbs[type] += amount - @absorbs[guid].to_i # if the shield was refreshed, just add the difference
+    @absorbs[guid] = amount # refresh the shield size
     time = (timestamp - self.started_at)
     @hp_parses[type][time] = @absorbs[type]
     self.record_hp(hitPoints, timestamp)
@@ -222,8 +222,10 @@ class FightParse < ActiveRecord::Base
 
   def self_absorb(guid, amount, hitPoints, timestamp)
     self.self_absorbing += amount
-    @absorbs[guid] -= amount
-    @absorbs[:self_absorb] -= amount
+    if @absorbs.has_key?(guid) # if this isn't here, we never recorded the application of the shield
+      @absorbs[guid] -= amount
+      @absorbs[:self_absorb] -= amount # to balance adding it earlier
+    end    
     time = (timestamp - self.started_at)
     @hp_parses[:self_absorb][time] = @absorbs[:self_absorb]
     self.record_hp(hitPoints, timestamp)
@@ -233,14 +235,17 @@ class FightParse < ActiveRecord::Base
     self.self_healing += amount
     @cooldowns['guard'][:cp].healed_amount += amount if @cooldowns['guard'][:active]
     time = (timestamp - self.started_at)
-    @hp_parses[:self_heal][time] = amount
+    @hp_parses[:self_heal][time] ||= 0
+    @hp_parses[:self_heal][time] += amount
     self.record_hp(hitPoints, timestamp)
   end
 
   def external_absorb(guid, amount, hitPoints, timestamp)
     self.external_absorbing += amount
-    @absorbs[guid] -= amount
-    @absorbs[:external_absorb] -= amount
+    if @absorbs.has_key?(guid) # if this isn't here, we never recorded the application of the shield
+      @absorbs[guid] -= amount
+      @absorbs[:external_absorb] -= amount # to balance adding it earlier
+    end    
     time = (timestamp - self.started_at)
     @hp_parses[:external_absorb][time] = @absorbs[:external_absorb]
     self.record_hp(hitPoints, timestamp)
@@ -249,7 +254,8 @@ class FightParse < ActiveRecord::Base
   def external_heal(amount, hitPoints, timestamp)
     self.external_healing += amount
     time = (timestamp - self.started_at)
-    @hp_parses[:external_heal][time] = amount
+    @hp_parses[:external_heal][time] ||= 0
+    @hp_parses[:external_heal][time] += amount
     self.record_hp(hitPoints, timestamp)
   end
 
@@ -345,8 +351,29 @@ class FightParse < ActiveRecord::Base
       eb.save
     end
 
-    @hp_parses.each_pair {|key, value| @hp_parses[key] = value.to_a }
-    File.write(Rails.root.join('lib', 'tasks', "#{self.fight_hash}_#{self.player_id}_hp.json"), @hp_parses.to_json)
+    @hp_parses.each do |key, hash|
+      next if key == :hp
+      prev = [0, 0]
+      @hp_parses[:hp].each do |time, value|
+        if hash.has_key?(time)
+          prev = [time, hash[time]]
+        else
+          if key == :self_heal || key == :external_heal
+            if time - prev[0] < 1000 # make the spikes easier to see in the graph
+              hash[time] = prev[1]
+            else
+              hash[time] = 0
+            end
+          else
+            hash[time] = prev[1]
+          end
+        end
+      end
+    end
+
+    @hp_parses.each {|key, value| @hp_parses[key] = value.sort_by{|time, value| time} }
+    # File.write(Rails.root.join('tmp', "#{self.fight_hash}_#{self.player_id}_hp.json"), @hp_parses.to_json)
+    S3_BUCKET.object("#{self.fight_hash}_#{self.player_id}_hp.json").put(body: @hp_parses.to_json)
 
     self.guard_absorbed = self.calc_guard_total[:absorbed]
     self.guard_healed = self.calc_guard_total[:healed]
