@@ -9,6 +9,7 @@
   <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-default') %>
   <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-primary') %>
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
+  <%= link_to('Health Graph', '?tab=hp', class: 'btn btn-default') %>
   <br /><br />
 
   <section>
@@ -63,8 +64,8 @@
       <div class="row">
         <div class="col-md-5">
           <div class="bar white" style="width: 100%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger %>%">
-              <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger %>%
+            <div class="bar p<%= i %>" style="width: <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger rescue 0 %>%">
+              <%= 100 * (fp.damage_to_stagger - fp.damage_from_stagger) / fp.damage_to_stagger rescue 0 %>%
             </div>
           </div>
         </div>

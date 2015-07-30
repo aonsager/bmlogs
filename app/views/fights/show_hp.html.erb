@@ -1,0 +1,130 @@
+<% breadcrumb :fight, @fight, @fps.first, @report, @fights %>
+<div class="container">
+  <div class="title"><%= "#{@fight.name} (#{DifficultyType.label(@fight.difficulty)}) (#{@fps.first.fight_time / 60}:#{@fps.first.fight_time % 60})" %></div>
+  <% @players.each_with_index do |player, i| %>
+    <a href="/players/<%= player.player_id %>"><div class="player-tag p<%= i %>"><%= player.player_name %></div></a>
+  <% end %>
+  <div style="clear:both"></div>
+  <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-default') %>
+  <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-default') %>
+  <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
+  <%= link_to('Health Graph', '?tab=hp', class: 'btn btn-primary') %>
+  <br /><br />
+  <h4>Tank Health <a class="tiny" data-toggle="popover" title="Tank Health" data-content="Effective health, as affected by absorbs, heals, and damage reduction abilities.">Explain this</a></h4>
+  <% if @prompt_import %>
+    <p>Looks like health data needs to be recorded.&nbsp;&nbsp;<%= @fight.button_html('fresh') %></p>
+  <% end %>
+  <% @players.each do |player| %>
+    <section>
+    <% if @hp_parses.has_key?(player.player_id) %>
+      <div id="graph-<%= player.player_id %>" class="graph" style="width:100%; height:400px;"></div>
+    <% end %>
+    </section>
+  <% end %>
+</div>
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover();
+  $('select#fight option').each(function(index, option){
+    if (option.value == "") {
+      name = $(option).text();
+      $(option).text('-- ' + name + ' --');
+    }
+  });
+  $('select#fight').change(function() {
+    val = $('select#fight').val();
+    if (val != "")
+      window.location = "/fights/" + val + "?tab=hp";
+  });
+  <% @fps.each do |fp| %>
+    <% next if !@hp_parses.has_key?(fp.player_id) %>
+    chart = new Highcharts.Chart({
+      chart: {
+        renderTo: 'graph-<%= fp.player_id %>',
+        zoomType: 'x',
+      },
+      plotOptions: {
+        areaspline: {
+          fillOpacity: 1,
+          stacking: 'normal'
+        }
+      },
+      navigator: {
+        enabled: true,
+      },
+      series: [
+        {
+          color: '#1fb47a',
+          connectNulls: false,
+          data: <%=raw @hp_parses[fp.player_id]['hp'] %>,
+          lineWidth: 2,
+          name: 'Health',
+          type: 'spline',
+          zIndex: 10
+        },
+        {
+          color: '#FEA25B',
+          connectNulls: true,
+          data: <%=raw @hp_parses[fp.player_id]['external_absorb'] %>,
+          name: 'External Absorb',
+          stack: 0,
+          type: 'areaspline',
+        },
+        {
+          color: '#FEE589',
+          connectNulls: true,
+          data: <%=raw @hp_parses[fp.player_id]['self_absorb'] %>,
+          name: 'Self Absorb',
+          stack: 0,
+          type: 'areaspline',
+        },
+        {
+          color: '#CC9DFD',
+          connectNulls: true,
+          data: <%=raw @hp_parses[fp.player_id]['external_heal'] %>,
+          name: 'External Healing',
+          stack: 0,
+          type: 'areaspline'
+        },
+        {
+          color: '#29C2FF',
+          connectNulls: true,
+          data: <%=raw @hp_parses[fp.player_id]['self_heal'] %>,
+          name: 'Self Healing',
+          stack: 0,
+          type: 'areaspline'
+        },
+        {
+          color: '#91ecc9',
+          connectNulls: true,
+          data: <%=raw @hp_parses[fp.player_id]['base_hp'] %>,
+          enableMouseTracking: false,
+          name: 'Health',
+          stack: 0,
+          type: 'areaspline'
+        },
+        
+      ],
+      title: {
+        text: 'Tank Health - <%= UserToPlayer.where(player_id: fp.player_id).first.player_name %>'
+      },
+      tooltip: {
+        xDateFormat: '%M:%S',
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          second: '%M:%S',
+        },
+      },
+      yAxis: {
+        floor: 0,
+        title: {
+          text: 'Health',
+        }
+      },
+    });
+  chart.xAxis[0].setExtremes(0, 120000);
+  <% end %>
+})
+</script>

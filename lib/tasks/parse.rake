@@ -10,13 +10,15 @@
 
 namespace :log do
   task :parse => :environment do
-    fight_id = 26
-    report_id = "7QXCmcMpnxFzNLV2"
-    fight = Fight.where(report_id: report_id, fight_id: fight_id).first
+    fight_id = 10
+    report_id = "PRNMqcfTn7pzjABx"
+    fight = Fight.where(report_id: report_id, fight_id: fight_id).first_or_create
     response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
-    puts '======='
-    puts "getting at time #{fight.started_at}"
     obj = JSON.parse(response.body)
+    # puts '======='
+    # puts "getting at time #{fight.started_at}"
+    file = File.read(Rails.root.join('lib', 'tasks', 'log1.json'))
+    # obj = JSON.parse(file)
     composition = obj['composition']
     events = obj['events']
     bm_ids = {}
@@ -59,6 +61,7 @@ namespace :log do
             case event['ability']['guid'] 
             when 115295 # gain guard
               fp.gain_cooldown('guard', event['timestamp'])
+              fp.gain_absorb(event['ability']['guid'], event['absorb'], :self_absorb, event['hitPoints'], event['timestamp'])
             when 115307 # gain shuffle
               fp.gain_shuffle(event['timestamp'])
             when 115308 # gain elusive brew
@@ -78,6 +81,7 @@ namespace :log do
             case event['ability']['guid'] 
             when 115295 # drop guard
               fp.drop_cooldown('guard', event['timestamp'])
+              fp.drop_absorb(event['ability']['guid'], event['absorb'], :self_absorb, event['hitPoints'], event['timestamp'])
             when 115307 # drop shuffle
               fp.drop_shuffle(event['timestamp'])
             when 115308 # drop elusive brew
@@ -110,34 +114,44 @@ namespace :log do
         if bm_ids.has_key?(event['targetID']) # something was done to the player
           fp = fight_parses[event['targetID']]
           case event['type']
+          when 'applybuff', 'refreshbuff'
+            if event['sourceID'] != event['targetID'] && event.has_key?('absorb') # external absorb
+              fp.gain_absorb(event['ability']['guid'], event['absorb'], :external_absorb, event['hitPoints'], event['timestamp'])
+            end
+          when 'removebuff'
+            if event['sourceID'] != event['targetID'] && event.has_key?('absorb') # external absorb
+              fp.drop_absorb(event['ability']['guid'], event['absorb'], :external_absorb, event['hitPoints'], event['timestamp'])
+            end
           when 'absorbed'
             if event['targetID'] == event['sourceID'] # self-absorb
               if event['ability']['guid'] == 115069 # stagger
                 fp.stagger(event['timestamp'], event['amount'], event['extraAbility']['guid'])
               elsif event['ability']['guid'] == 115295 # guard
-                fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'], event['timestamp'])
+                fp.guard(event['extraAbility']['guid'], event['extraAbility']['name'], event['amount'], event['hitPoints'], event['timestamp'])
               else # just in case
-                fp.self_absorb(event['amount'])
+                fp.self_absorb(event['extraAbility']['guid'], event['amount'], event['timestamp'])
               end
             else # external absorb received
-              fp.external_absorb(event['amount'])
+              fp.external_absorb(event['ability']['guid'], event['amount'], event['hitPoints'], event['timestamp'])
             end
           when 'heal'
             if event['targetID'] == event['sourceID'] # self-healing
-              fp.self_heal(event['amount'])
+              fp.self_heal(event['amount'], event['hitPoints'], event['timestamp'])
             else # external healing received
-              fp.external_heal(event['amount'])
+              fp.external_heal(event['amount'], event['hitPoints'], event['timestamp'])
             end
           when 'damage'
             fp.record_damage(event['timestamp'], event['sourceID'], event['sourceIsFriendly'], event['ability']['guid'], event['ability']['name'], event['ability']['type'], event['amount'], event['absorbed'], event['maxHitPoints'], event['tick'])
             if event['hitType'] == 7 # dodge
               fp.dodge(event['sourceID'], event['ability']['guid'], event['ability']['name'])
             end
+            fp.record_hp(event['hitPoints'], event['timestamp'])
           end
         end
         cursor = event['timestamp'] + 1
       end
       if cursor >= fight.ended_at
+        puts "ended at #{cursor}"
         break
       else 
         response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{cursor}&api_key=#{ENV['WCL_API_KEY']}")

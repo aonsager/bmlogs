@@ -9,6 +9,7 @@
   <%= link_to('Key Metrics', '?tab=basic', class: 'btn btn-primary') %>
   <%= link_to('Resource Management', '?tab=resources', class: 'btn btn-default') %>
   <%= link_to('Cooldown Usage', '?tab=cooldowns', class: 'btn btn-default') %>
+  <%= link_to('Health Graph', '?tab=hp', class: 'btn btn-default') %>
   <br /><br />
   <section>
     <h4>Damage per Second <a class="tiny" data-toggle="popover" title="Damage per Second" data-content="Total damage / Fight time. Xuen's damage is shown with a separate color">Explain this</a></h4>
@@ -44,7 +45,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="bar p<%= i %> light" style="width: <%= 100 * fp.shps / @max_bar %>%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.self_healing / (fp.self_healing + fp.self_absorbing) rescue 0 %>%">
               <%= fp.shps %>/s
             </div>
           </div>
@@ -60,7 +61,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="bar p<%= i %> light" style="width: <%= 100 * fp.ehps / @max_bar %>%">
-            <div class="bar p<%= i %>" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) %>%">
+            <div class="bar p<%= i %>" style="width: <%= 100 * fp.external_healing / (fp.external_healing + fp.external_absorbing) rescue 0 %>%">
               <%= fp.ehps %>/s
             </div>
           </div>

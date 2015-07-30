@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150724031155) do
+ActiveRecord::Schema.define(version: 20150729025824) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20150724031155) do
 
   create_table "fight_parses", force: :cascade do |t|
     t.integer  "fight_id",                        null: false
-    t.text     "user_id",                         null: false
+    t.text     "user_id"
     t.integer  "player_id",                       null: false
     t.integer  "boss_id"
     t.integer  "kegsmash",            default: 0
@@ -90,6 +90,15 @@ ActiveRecord::Schema.define(version: 20150724031155) do
   add_index "fights", ["fight_hash"], name: "index_fights_on_fight_hash", unique: true, using: :btree
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
 
+  create_table "hp_parses", force: :cascade do |t|
+    t.integer  "fight_parse_id",                      null: false
+    t.integer  "hp_type",                             null: false
+    t.text     "values",         default: "--- {}\n"
+    t.string   "ability_name",   default: ""
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "reports", force: :cascade do |t|
     t.string   "report_id",                  null: false
     t.string   "user_id"
@@ -105,7 +114,7 @@ ActiveRecord::Schema.define(version: 20150724031155) do
   add_index "reports", ["report_id"], name: "index_reports_on_report_id", unique: true, using: :btree
 
   create_table "user_to_players", force: :cascade do |t|
-    t.text     "user_id",     null: false
+    t.text     "user_id"
     t.integer  "player_id",   null: false
     t.text     "player_name"
     t.datetime "created_at"
