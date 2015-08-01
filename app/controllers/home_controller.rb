@@ -1,7 +1,19 @@
 class HomeController < ApplicationController
   def index
     if params.has_key?(:report_id)
-      redirect_to report_path(params[:report_id])
+      if (/\// =~ params[:report_id]).nil?
+        report_id = params[:report_id].strip
+      else
+        match = /\/reports\/(\w+)/.match(params[:report_id])
+        if match.nil?
+          flash[:danger] = "Invalid report ID"
+          redirect_to root_path
+          return
+        else
+          report_id = match[1]
+        end
+      end
+      redirect_to report_path(report_id)
     elsif params.has_key?(:user_id)
       redirect_to user_path(params[:user_id])
     else

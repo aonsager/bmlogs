@@ -8,7 +8,7 @@ class ReportsController < ApplicationController
     players = obj['friendlies']
     puts obj
     if fights.nil? 
-      flash[:danger] = 'Report not found'
+      flash[:danger] = "Report not found - ID provided was \"#{@report_id}\""
       redirect_to :back
       return 
     end
