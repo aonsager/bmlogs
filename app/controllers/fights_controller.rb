@@ -30,11 +30,11 @@ class FightsController < ApplicationController
       @max_fb = 1
       @max_bar = 1
       @fps.each do |fp|
-        @max_eb = [fp.cooldown_parses.eb.maximum(:reduced_amount).to_i, @max_eb].max
         @max_dh = [fp.cooldown_parses.dh.maximum(:reduced_amount).to_i, @max_dh].max
         @max_dm = [fp.cooldown_parses.dm.maximum(:reduced_amount).to_i, @max_dm].max
         @max_zm = [fp.cooldown_parses.zm.maximum(:reduced_amount).to_i, @max_zm].max
         @max_fb = [fp.cooldown_parses.fb.maximum(:reduced_amount).to_i, @max_fb].max
+        fp.cooldown_parses.eb.each {|eb| @max_eb = (eb.reduced_amount / eb.time) if (eb.reduced_amount / eb.time) > @max_eb}
         fp.cooldown_parses.guard.each {|g| @max_guard = (g.absorbed_amount + g.healed_amount) if (g.absorbed_amount + g.healed_amount) > @max_guard}
         @max_bar = [fp.gps, fp.ebps, fp.dh_reduced / fp.fight_time, fp.dm_reduced / fp.fight_time, fp.zm_reduced / fp.fight_time, fp.fb_reduced / fp.fight_time, @max_bar].max
       end
