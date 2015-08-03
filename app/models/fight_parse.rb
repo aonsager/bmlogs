@@ -51,7 +51,7 @@ class FightParse < ActiveRecord::Base
   end
 
   def fight_time
-    return (self.ended_at - self.started_at) / 1000
+    return (self.ended_at - self.started_at) / 1000 rescue 0
   end
 
   def dps
