@@ -1,6 +1,13 @@
 <% breadcrumb :report, @report %>
 <div class="container">
-  <h2><%= @report.title %></h2>
+  <div class="row">
+    <div class="col-md-6">
+      <h2><%= @report.title %></h2>
+      </div>
+      <div class="col-md-6 text-right u-valign">
+        <%= link_to('Refresh Report', report_import_path(@report.report_id), class: 'btn btn-info') %>
+      </div>
+    </div>
   <table class="table">
     <thead>
       <tr>
