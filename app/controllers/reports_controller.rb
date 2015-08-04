@@ -28,7 +28,7 @@ class ReportsController < ApplicationController
         )
       end
     end
-    report = Report.where(report_id: @report_id).first
+    report = Report.find_by(report_id: @report_id)
     if report.nil?
       Report.create(
             report_id: @report_id,
@@ -47,7 +47,7 @@ class ReportsController < ApplicationController
   end
 
   def show
-    @report = Report.where(report_id: @report_id).first
+    @report = Report.find_by(report_id: @report_id)
     if @report.nil?
       redirect_to :action => 'import', :report_id => @report_id
     end

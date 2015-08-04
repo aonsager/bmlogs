@@ -6,13 +6,13 @@ class Parser
   @report_id = 0
 
   def self.on_failure_reset(e, *args)
-    Fight.where(report_id: @report_id, fight_id: @fight_id).first.update_attributes(status: :failed)
+    Fight.find_by(report_id: @report_id, fight_id: @fight_id).update_attributes(status: :failed)
   end
 
   def self.perform(fight_id, report_id)
     @fight_id = fight_id
     @report_id = report_id
-    fight = Fight.where(report_id: report_id, fight_id: fight_id).first
+    fight = Fight.find_by(report_id: report_id, fight_id: fight_id)
     response = HTTParty.get("https://www.warcraftlogs.com/v1/report/events/#{report_id}?start=#{fight.started_at}&api_key=#{ENV['WCL_API_KEY']}")
     obj = JSON.parse(response.body)
     composition = obj['composition']
@@ -20,7 +20,7 @@ class Parser
     bm_ids = {}
     fight_parses = {}
     owners_by_pet_id = {}
-    user_id = Report.where(report_id: fight.report_id).first.user_id
+    user_id = Report.find_by(report_id: fight.report_id).user_id
 
     composition.each do |player|
       next if player['specs'].size == 0 # not sure why sometimes this data doesn't come
@@ -28,7 +28,7 @@ class Parser
     end
 
     bm_ids.each do |bm_id, bm_hash|
-      u2p = UserToPlayer.where(player_id: bm_hash[:guid]).first_or_initialize
+      u2p = UserToPlayer.find_or_initialize_by(player_id: bm_hash[:guid])
       u2p.update_attributes(player_name: bm_hash[:name])
       FightParse.where(fight_id: fight.id, player_id: bm_hash[:guid]).destroy_all
       fight_parses[bm_id] = FightParse.create(fight_id: fight.id, fight_hash: fight.fight_hash, player_id: bm_hash[:guid], boss_id: fight.boss_id, difficulty: fight.difficulty)

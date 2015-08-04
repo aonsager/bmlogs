@@ -4,7 +4,7 @@ class FightsController < ApplicationController
     fight_id = params[:fight_id] || params[:id]
     report_id = params[:report_id]
     Resque.enqueue(Parser, fight_id, report_id)
-    Fight.where(report_id: report_id, fight_id: fight_id).first.update_attributes(status: :processing)
+    Fight.find_by(report_id: report_id, fight_id: fight_id).update_attributes(status: :processing)
     flash[:success] = "Your report has been queued. Please try refreshing the page in a few minutes."
     redirect_to report_path(report_id)
   end

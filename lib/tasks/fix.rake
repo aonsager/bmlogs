@@ -13,7 +13,7 @@ namespace :fix do
       eb.total_avoided = 0
       eb.dodged_hash.each do |source_id, source|
         source[:abilities].each do |ability_id, ability|
-          avoided_dmg = ability[:dodged] * EbSource.where(fight_parse_id: eb.fight_parse_id, source_id: source_id, ability_id: ability_id).first.average_dmg
+          avoided_dmg = ability[:dodged] * EbSource.find_by(fight_parse_id: eb.fight_parse_id, source_id: source_id, ability_id: ability_id).average_dmg
           eb.total_avoided += avoided_dmg
         end
       end

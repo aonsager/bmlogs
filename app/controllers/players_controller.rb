@@ -8,7 +8,7 @@ class PlayersController < ApplicationController
 
   def show
     @player_id = params[:id] || params[:player_id]
-    @player_name = UserToPlayer.where(player_id: @player_id).first.player_name
+    @player_name = UserToPlayer.find_by(player_id: @player_id).player_name
     @zones = Zone.all.order('id DESC').includes(:bosses)
     @player_bosses = {}
     FightParse.where(player_id: @player_id).each do |fp|
