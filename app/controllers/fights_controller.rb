@@ -11,7 +11,6 @@ class FightsController < ApplicationController
 
   def show
     fight_hash = params[:id]
-    @player_id = params[:player_id]
     @fight = Fight.find_by(fight_hash: fight_hash)
     @report = Report.find_by(report_id: @fight.report_id)
     @fps = @fight.fight_parses.order(:player_id).to_a
@@ -40,19 +39,6 @@ class FightsController < ApplicationController
       end
       render template: 'fights/show_cooldowns'
     when 'hp'
-      @hp_parses = {}
-      @fps.each do |fp|
-        file = S3_BUCKET.object("#{fp.fight_hash}_#{fp.player_id}_hp.json")
-        if file.exists?
-          @hp_parses[fp.player_id] = JSON.parse(file.get.body.string)
-          @hp_parses[fp.player_id]['base_hp'] = []
-          @hp_parses[fp.player_id]['hp'].each_with_index do |hash, index|
-            @hp_parses[fp.player_id]['base_hp'][index] = [hash[0], hash[1] - @hp_parses[fp.player_id]['self_heal'][index][1] - @hp_parses[fp.player_id]['external_heal'][index][1]]
-          end
-        else
-          @prompt_import = true
-        end
-      end
       render template: 'fights/show_hp'
     else
       @max_bar = 1
@@ -60,6 +46,27 @@ class FightsController < ApplicationController
         @max_bar = [fp.dps, fp.dtps, fp.shps, fp.ehps, @max_bar].max
       end
       render template: 'fights/show_basic'
+    end
+  end
+
+  def load_hp_graph
+    fight_hash = params[:fight_id]
+    @fight = Fight.find_by(fight_hash: fight_hash)
+    @fps = @fight.fight_parses.order(:player_id).to_a
+    @hp_parses = {}
+    @fps.each do |fp|
+      file = S3_BUCKET.object("#{fp.fight_hash}_#{fp.player_id}_hp.json")
+      if file.exists?
+        @hp_parses[fp.player_id] = JSON.parse(file.get.body.string)
+        @hp_parses[fp.player_id]['base_hp'] = []
+        @hp_parses[fp.player_id]['hp'].each_with_index do |hash, index|
+          @hp_parses[fp.player_id]['base_hp'][index] = [hash[0], hash[1] - @hp_parses[fp.player_id]['self_heal'][index][1] - @hp_parses[fp.player_id]['external_heal'][index][1]]
+        end
+      end
+    end
+
+    respond_to do |format|
+      format.js
     end
   end
 end

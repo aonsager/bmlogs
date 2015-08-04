@@ -20,7 +20,9 @@ Rails.application.routes.draw do
 
   end
 
-  resources :fights, only: [:show]
+  resources :fights, only: [:show] do
+    get 'load_hp_graph'
+  end
 
   resources :players, only: [:show] do
     collection do
