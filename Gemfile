@@ -42,6 +42,8 @@ gem "hirefire-resource"
 
 gem 'rails_12factor', group: :production
 
+gem "bullet", :group => "development"
+
 gem 'aws-sdk'
 
 group :development, :test do

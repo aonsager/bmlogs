@@ -9,7 +9,7 @@ class PlayersController < ApplicationController
   def show
     @player_id = params[:id] || params[:player_id]
     @player_name = UserToPlayer.where(player_id: @player_id).first.player_name
-    @zones = Zone.all.order('id DESC')
+    @zones = Zone.all.order('id DESC').includes(:bosses)
     @player_bosses = {}
     FightParse.where(player_id: @player_id).each do |fp|
       @player_bosses[fp.boss_id] = {} unless @player_bosses.has_key?(fp.boss_id)

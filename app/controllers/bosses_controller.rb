@@ -6,7 +6,7 @@ class BossesController < ApplicationController
     @difficulty = params[:difficulty].to_i
     @boss_name = Boss.find(@boss_id).name
 
-    @fights = FightParse.where(player_id: @player_id, boss_id: @boss_id, difficulty: @difficulty).order(:id)
+    @fights = FightParse.where(player_id: @player_id, boss_id: @boss_id, difficulty: @difficulty).order(report_started_at: :desc)
 
     case params[:tab]
     when 'resources'

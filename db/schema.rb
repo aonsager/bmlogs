@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150729025824) do
+ActiveRecord::Schema.define(version: 20150804080507) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,24 +67,26 @@ ActiveRecord::Schema.define(version: 20150729025824) do
     t.datetime "updated_at"
     t.integer  "difficulty"
     t.string   "fight_hash"
+    t.datetime "report_started_at"
   end
 
   add_index "fight_parses", ["fight_id", "player_id"], name: "index_fight_parses_on_fight_id_and_player_id", unique: true, using: :btree
 
   create_table "fights", force: :cascade do |t|
-    t.string   "report_id",              null: false
-    t.integer  "fight_id",               null: false
+    t.string   "report_id",                     null: false
+    t.integer  "fight_id",                      null: false
     t.text     "name"
     t.integer  "boss_id"
     t.integer  "size"
     t.integer  "difficulty"
     t.boolean  "kill"
-    t.integer  "status",     default: 0
+    t.integer  "status",            default: 0
     t.integer  "started_at"
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "fight_hash"
+    t.datetime "report_started_at"
   end
 
   add_index "fights", ["fight_hash"], name: "index_fights_on_fight_hash", unique: true, using: :btree

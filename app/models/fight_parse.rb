@@ -46,8 +46,7 @@ class FightParse < ActiveRecord::Base
   # getters
 
   def fight_date
-    report = Report.where(report_id: self.fight.report_id).first
-    return report.started_at.nil? ? "#{report.title[0..4]}..." : report.started_at.strftime("%-m/%-d")
+    return self.report_started_at.nil? ? "N/A" : self.report_started_at.strftime("%-m/%-d")
   end
 
   def fight_time
