@@ -33,7 +33,7 @@
         <div class="col-md-5">
           <div class="bar p<%= i %>" style="width: <%= [200 * fp.tigerpalm / fp.fight_time, 100].min %>%"><%= fp.tigerpalm %></div>
         </div>
-        <div class="col-md-3"><%= fp.tigerpalm %> / <%= fp.fight_time %>s</div>
+        <div class="col-md-3"><%= (1.0 * fp.tigerpalm / fp.fight_time).round(2) %> casts/s</div>
       </div>
     <% end %>
   </section>
