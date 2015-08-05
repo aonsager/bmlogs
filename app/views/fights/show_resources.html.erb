@@ -27,6 +27,18 @@
   </section>
 
   <section>
+    <h4>Tigerpalm Casts <a class="tiny" data-toggle="popover" title="Tigerpalm Casts" data-content="It's hard to say how many Tigerpalm casts is 'good', but this should be high since you can cast it every GCD that you're not doing something else.">Explain this</a></h4>
+    <% @fps.each_with_index do |fp, i| %>
+      <div class="row">
+        <div class="col-md-5">
+          <div class="bar p<%= i %>" style="width: <%= [200 * fp.tigerpalm / fp.fight_time, 100].min %>%"><%= fp.tigerpalm %></div>
+        </div>
+        <div class="col-md-3"><%= fp.tigerpalm %> / <%= fp.fight_time %>s</div>
+      </div>
+    <% end %>
+  </section>
+
+  <section>
     <h4>Shuffle Uptime <a class="tiny" data-toggle="popover" title="Shuffle Uptime" data-content="The percent of the fight that you had Shuffle active. Aim for 100%.">Explain this</a></h4>
     <% @fps.each_with_index do |fp, i| %>
       <div class="row">
