@@ -15,6 +15,7 @@ class FightsController < ApplicationController
     @report = Report.find_by(report_id: @fight.report_id)
     @fps = @fight.fight_parses.order(:player_id).to_a
     @players = UserToPlayer.where(player_id: @fps.map(&:player_id)).order(:player_id).to_a
+    @players = @players.uniq{|p| p.player_id}
     @fights = @report.fights_for_select
 
     case params[:tab]
