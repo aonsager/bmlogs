@@ -23,6 +23,7 @@ class ReportsController < ApplicationController
           size: fight['size'],
           difficulty: fight['difficulty'],
           kill: fight['kill'],
+          report_started_at: Time.at(obj['start']/1000),
           started_at: fight['start_time'],
           ended_at: fight['end_time'],
         )
