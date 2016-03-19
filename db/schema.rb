@@ -65,8 +65,8 @@ ActiveRecord::Schema.define(version: 20150804080507) do
     t.integer  "ended_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "difficulty"
     t.string   "fight_hash"
+    t.integer  "difficulty"
     t.datetime "report_started_at"
   end
 
@@ -91,15 +91,6 @@ ActiveRecord::Schema.define(version: 20150804080507) do
 
   add_index "fights", ["fight_hash"], name: "index_fights_on_fight_hash", unique: true, using: :btree
   add_index "fights", ["report_id", "fight_id"], name: "index_fights_on_report_id_and_fight_id", unique: true, using: :btree
-
-  create_table "hp_parses", force: :cascade do |t|
-    t.integer  "fight_parse_id",                      null: false
-    t.integer  "hp_type",                             null: false
-    t.text     "values",         default: "--- {}\n"
-    t.string   "ability_name",   default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "reports", force: :cascade do |t|
     t.string   "report_id",                  null: false

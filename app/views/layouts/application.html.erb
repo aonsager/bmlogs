@@ -13,6 +13,9 @@
 <body>
   <div id="wrapper">
     <%= render "layouts/header" %>
+    <div class="notif">
+      This site is moving to <a href="http://www.checkmywow.com">www.checkmywow.com</a>. Please read more <a href="/checkmywow">here</a>.
+    </div>
     <% flash.each do |type, msg| -%>
       <div class="alert alert-<%=type%> alert-dismissible">
         <%=raw msg %>

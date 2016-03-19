@@ -28,6 +28,10 @@ class HomeController < ApplicationController
     
   end
 
+  def checkmywow
+
+  end
+
   def logout
     session.delete :user_id
     session.delete :char_name
