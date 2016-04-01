@@ -35,10 +35,9 @@ Rails.application.routes.draw do
   end
 
   resources :reports, only: [:show] do
-    get 'import'
 
     resources :fights, only: [] do
-      get 'parse'
+
     end
   end
 

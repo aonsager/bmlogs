@@ -11,7 +11,7 @@ class Fight < ActiveRecord::Base
     
     case force || self.status
     when 'fresh'
-      return ActionController::Base.helpers.link_to('Process Fight', Rails.application.routes.url_helpers.report_fight_parse_path(self.report_id, self.fight_id), class: 'btn btn-default')
+      return ActionController::Base.helpers.link_to('Unprocessed', '#', class: 'btn btn-error', disabled: 'disabled')
     when 'done'
       return ActionController::Base.helpers.link_to('View Fight', Rails.application.routes.url_helpers.fight_path(self.fight_hash), class: 'btn btn-success')
     when 'empty'

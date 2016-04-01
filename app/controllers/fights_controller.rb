@@ -1,13 +1,13 @@
 class FightsController < ApplicationController
 
-  def parse
-    fight_id = params[:fight_id] || params[:id]
-    report_id = params[:report_id]
-    Resque.enqueue(Parser, fight_id, report_id)
-    Fight.find_by(report_id: report_id, fight_id: fight_id).update_attributes(status: :processing)
-    flash[:success] = "Your report has been queued. Please try refreshing the page in a few minutes."
-    redirect_to report_path(report_id)
-  end
+  # def parse
+  #   fight_id = params[:fight_id] || params[:id]
+  #   report_id = params[:report_id]
+  #   Resque.enqueue(Parser, fight_id, report_id)
+  #   Fight.find_by(report_id: report_id, fight_id: fight_id).update_attributes(status: :processing)
+  #   flash[:success] = "Your report has been queued. Please try refreshing the page in a few minutes."
+  #   redirect_to report_path(report_id)
+  # end
 
   def show
     fight_hash = params[:id]
